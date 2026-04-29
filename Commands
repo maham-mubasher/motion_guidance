@@ -1,0 +1,77 @@
+cd /home/maham/thesis/motion_guidance_github/motion_guidance/backend
+conda activate motion_guidance
+pkill -f "uvicorn mg_api.main:app"
+uvicorn mg_api.main:app --host 0.0.0.0 --port 8000
+
+Runnable app presets:
+Apple - move right:
+  Prompt: an apple on a wooden table
+  Input Dir: ./data/apple
+  Mask File: right.mask.pth
+  Target Flow: right.pth
+  Mode: Primitive Motion / Translate
+  Translate X: 150
+  Translate Y: 0
+
+Teapot example values:
+Prompt: a teapot floating in water
+Input Dir: ./data/teapot
+Target Flow Source: Primitive Motion
+Primitive Type: Translate
+Mask File: down150.mask.pth
+Target Flow: down150.pth
+Translate X: 0
+Translate Y: 150
+
+Optional direct backend run:
+python generate.py --prompt "a teapot floating in water" --input_dir ./data/teapot --edit_mask_path down150.mask.pth --target_flow_mode primitive --target_flow_name down150.pth --primitive_kind translate --primitive_dx 0 --primitive_dy 150 --use_hard_warp_init --use_selective_refinement --selective_inner_weight 1.0 --selective_outer_weight 0.15 --use_cached_latents --log_freq 5 --ddim_steps 120 --scale 6.5 --num_recursive_steps 1 --guidance_weight 30 --clip_grad 60 --raft_iters 1 --precision fp32 --disable_dataparallel --save_dir ./results/teapot.down150.lama
+
+Lion - move left:
+  Prompt: a photo of a lion
+  Input Dir: ./data/lion
+  Mask File: left.mask.pth
+  Target Flow: left.pth
+  Mode: Primitive Motion / Translate
+  Translate X: -100
+  Translate Y: 0
+
+Woman - grow hair:
+  Prompt: a portrait photo of a woman
+  Input Dir: ./data/woman
+  Mask File: growHair.mask.pth
+  Target Flow: growHair.pth
+  Mode: Precomputed Flow File
+
+Tree - squeeze:
+  Prompt: a painting of a lone tree
+  Input Dir: ./data/tree
+  Mask File: squeeze.mask.pth
+  Target Flow: squeeze.pth
+  Mode: Precomputed Flow File
+
+Topiary - precomputed flow:
+  Prompt: a photo of topiary
+  Input Dir: ./data/topiary
+  Mask File: mask.pth
+  Target Flow: flow.pth
+  Mode: Precomputed Flow File
+
+Cat example status:
+There is no runnable ./data/cat folder yet.
+Available cat file: ./assets/cat.png
+Note: ./assets/cat.png is a presentation collage with target-flow/source/result panels, not a pipeline input folder.
+
+Cat values to use after creating ./data/cat:
+Prompt: a photo of a cat
+Input Dir: ./data/cat
+Target Flow Source: Primitive Motion
+Primitive Type: Translate
+Mask File: right150.mask.pth
+Target Flow: right150.pth
+Translate X: 150
+Translate Y: 0
+
+Cat setup needed before running:
+1. Create ./data/cat/pred.png from a clean 512x512 source cat image.
+2. Create ./data/cat/flows/right150.mask.pth and ./data/cat/flows/right150.pth using the GUI/SAM flow tool.
+3. Create or provide ./data/cat/start_zt.pth and cached latents, or run generate.py with --no_init_startzt and without --use_cached_latents.

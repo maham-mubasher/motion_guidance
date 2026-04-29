@@ -7,6 +7,7 @@ from torchvision.utils import save_image
 
 from ldm.modules.diffusionmodules.util import make_ddim_sampling_parameters, make_ddim_timesteps, noise_like, \
     extract_into_tensor
+from selective_refinement import RefinementConfig, apply_selective_guidance
 
 
 class DDIMSamplerWithGrad(object):
@@ -67,6 +68,7 @@ class DDIMSamplerWithGrad(object):
                eta=0.,
                CFG_scale=1.,
                start_zt=None,
+               init_latent=None,
                cached_latents=None,
                edit_mask=None,
                num_recursive_steps=1,
@@ -76,7 +78,10 @@ class DDIMSamplerWithGrad(object):
                log_freq=0,
                results_folder=None,
                guidance_energy=None,
-               precision="fp16"
+               precision="fp16",
+               use_selective_refinement=False,
+               selective_inner_weight=1.0,
+               selective_outer_weight=0.25,
             ):
 
         # Make folders to save stuff in
@@ -140,7 +145,16 @@ class DDIMSamplerWithGrad(object):
                 )
 
         # Init noisy latent
-        if start_zt is None:
+        if init_latent is not None:
+            init_latent = init_latent.to(device)
+            initial_alpha = torch.full((b, 1, 1, 1), alphas[-1], device=device, dtype=init_latent.dtype)
+            if start_zt is not None and start_zt.shape == init_latent.shape:
+                inferred_noise = (start_zt.to(device) - initial_alpha.sqrt() * tgt_z0) / (1.0 - initial_alpha).sqrt().clamp_min(1e-6)
+            else:
+                inferred_noise = noise_like(init_latent.shape, device, False)
+            noisy_latent = initial_alpha.sqrt() * init_latent + (1.0 - initial_alpha).sqrt() * inferred_noise
+            start_zt = noisy_latent
+        elif start_zt is None:
             noisy_latent = torch.randn(shape, device=device)
             start_zt = noisy_latent
         else:
@@ -158,6 +172,10 @@ class DDIMSamplerWithGrad(object):
         guidance_norms = []
 
         # DDIM sampling loop
+        refinement_config = RefinementConfig(
+            inner_weight=selective_inner_weight,
+            outer_weight=selective_outer_weight,
+        )
         for i, step in enumerate(iterator):
             print(f"MG_PROGRESS {i + 1}/{total_steps} denoising", flush=True)
             # Bookkeeping
@@ -202,6 +220,9 @@ class DDIMSamplerWithGrad(object):
                 energy, info_loss = guidance_energy(recons_image, src_img)
                 grad = torch.autograd.grad(energy, noisy_latent_grad)[0]
                 grad = -grad * guidance_weight * guidance_schedule[i]
+                if use_selective_refinement:
+                    editable_region = ~edit_mask
+                    grad = apply_selective_guidance(grad, editable_region, refinement_config)
 
                 # Clip gradient
                 if clip_grad != 0:

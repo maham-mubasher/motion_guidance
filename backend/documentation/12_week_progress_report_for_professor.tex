@@ -1,0 +1,584 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[a4paper,margin=0.72in]{geometry}
+\usepackage{fontspec}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\setmainfont{TeX Gyre Termes}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{TeX Gyre Cursor}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist[itemize]{topsep=2pt,itemsep=2pt,leftmargin=1.2em}
+\setlist[enumerate]{topsep=2pt,itemsep=2pt,leftmargin=1.4em}
+\renewcommand{\arraystretch}{1.18}
+\titleformat{\section}{\large\bfseries\sffamily}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalsize\bfseries\sffamily}{\thesubsection}{0.6em}{}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\img}[2]{\includegraphics[width=#1]{#2}}
+
+\title{\textbf{12-Week Progress Report}\\Motion-Guided Image Editing}
+\author{}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+
+\section{Project Objective}
+
+The objective is to construct a controllable extension of Motion Guidance for image editing by replacing dependence on only precomputed target flows with explicit motion parameters, localized guidance, hard geometric initialization, and post-diffusion restoration.
+
+Given source image \(x_0 \in [0,1]^{H \times W \times 3}\), text condition \(c\), edit mask \(M\), and target flow \(F^\star \in \mathbb{R}^{H \times W \times 2}\), the desired edit is represented by the following energy:
+
+\begin{equation}
+E(x)=
+\lambda_f \mathcal{L}_{flow}\!\left(\Phi(x),F^\star\right)
++ \lambda_c \mathcal{L}_{color}(x,x_0;M)
++ \lambda_p \mathcal{R}(x,c).
+\end{equation}
+
+Here \(\Phi(\cdot)\) is the optical-flow estimator, \(\mathcal{L}_{flow}\) is the motion-consistency term, \(\mathcal{L}_{color}\) is the source-preservation term, and \(\mathcal{R}\) is the text-conditioned diffusion prior. The final edit is not solved as an exact closed-form optimizer. Instead, this energy is used as a guidance signal during DDIM sampling.
+
+\section{Diffusion Guidance Formulation}
+
+For latent \(z_t\), timestep \(t\), conditional embedding \(c\), and unconditional embedding \(\varnothing\), classifier-free guidance is:
+
+\begin{equation}
+\epsilon_{cfg}
+= \epsilon_\theta(z_t,t,\varnothing)
++ s\left[
+\epsilon_\theta(z_t,t,c)-\epsilon_\theta(z_t,t,\varnothing)
+\right],
+\end{equation}
+
+where \(s\) is the CFG scale.
+
+The predicted clean image estimate is:
+
+\begin{equation}
+\hat{x}_0 =
+D\left(
+\frac{z_t-\sqrt{1-\alpha_t}\epsilon_{cfg}}{\sqrt{\alpha_t}}
+\right).
+\end{equation}
+
+At each denoising step, the guidance gradient is computed as:
+
+\begin{equation}
+g_t = \nabla_{z_t}E(\hat{x}_0).
+\end{equation}
+
+The noise estimate is corrected by:
+
+\begin{equation}
+\epsilon'
+=
+\epsilon_{cfg}
+- \sqrt{1-\alpha_t}\,w_t\,g_t.
+\end{equation}
+
+Gradient clipping is applied:
+
+\begin{equation}
+g_t \leftarrow
+g_t \cdot
+\min\left(
+1,
+\frac{\tau}{\|\sqrt{1-\alpha_t}g_t\|_2}
+\right).
+\end{equation}
+
+\section{Motion Primitive Parameterization}
+
+For geometric primitive \(T_\theta:\mathbb{R}^2\rightarrow\mathbb{R}^2\), the induced flow is:
+
+\begin{equation}
+F_\theta(p)=T_\theta(p)-p.
+\end{equation}
+
+Implemented primitives:
+
+\begin{itemize}
+  \item Translation: \(T_\theta(p)=p+(d_x,d_y)\)
+  \item Scale: \(T_\theta(p)=c+S(p-c)\)
+  \item Stretch: \(S=\operatorname{diag}(s_x,s_y)\)
+  \item Rotation: \(T_\theta(p)=c+R_\theta(p-c)\)
+\end{itemize}
+
+Primitive flow is restricted to object support \(\Omega_M\):
+
+\begin{equation}
+F^\star(p)=
+\begin{cases}
+F_\theta(p), & p\in\Omega_M,\\
+0, & p\notin\Omega_M.
+\end{cases}
+\end{equation}
+
+\section{Selective Refinement}
+
+The guidance gradient is spatially weighted:
+
+\begin{equation}
+g'(p)=
+\begin{cases}
+\gamma_{in}g(p), & p\in\Omega_M,\\
+\gamma_{out}g(p), & p\notin\Omega_M.
+\end{cases}
+\end{equation}
+
+Typical values used in experiments:
+
+\begin{equation}
+\gamma_{in}=1.0,\qquad \gamma_{out}\in[0.05,0.25].
+\end{equation}
+
+\section{Hard Warp Initialization}
+
+Primitive guidance alone was weak. Therefore the source image is explicitly warped before diffusion refinement:
+
+\begin{equation}
+x^{warp}(p)=x_0(p-F^\star(p)).
+\end{equation}
+
+The warped image is encoded into the diffusion latent:
+
+\begin{equation}
+z^{init}=0.18215\cdot E_{VAE}(x^{warp}).
+\end{equation}
+
+\section{Translation Composite and Restoration}
+
+For object support \(S\), translated support \(S'\), shifted object \(x_{obj}^{shift}\), background \(B\), and soft boundary \(\alpha\):
+
+\begin{equation}
+x_{final}
+=
+\alpha S'x_{obj}^{shift}
++
+(1-\alpha S')B.
+\end{equation}
+
+The source-hole region \(H\) is restored as:
+
+\begin{equation}
+B_H=\operatorname{Fill}(x_0,H).
+\end{equation}
+
+Restoration operators tested:
+
+\begin{itemize}
+  \item local neighbor averaging
+  \item directional texture fill
+  \item patch-based donor selection
+  \item OpenCV Telea inpainting
+  \item LaMa / Big-LaMa inpainting through \texttt{simple-lama-inpainting}
+\end{itemize}
+
+Patch donor normalization:
+
+\begin{equation}
+\tilde{P}
+=
+\sigma_H\frac{P-\mu_P}{\sigma_P+\epsilon}
++\mu_H.
+\end{equation}
+
+\section{Code Artifacts}
+
+\begin{tabularx}{\textwidth}{@{}lY@{}}
+\toprule
+Component & File \\
+\midrule
+Motion primitive generation & \texttt{backend/motion\_primitives.py} \\
+Selective gradient weighting & \texttt{backend/selective\_refinement.py} \\
+Modified DDIM guidance loop & \texttt{backend/ldm/models/diffusion/ddim\_with\_grad.py} \\
+Generation pipeline & \texttt{backend/generate.py} \\
+Background restoration / compositing & \texttt{backend/background\_restoration.py} \\
+Backend API & \texttt{backend/mg\_api/main.py} \\
+Frontend interface & \texttt{frontend/src/app/page.tsx} \\
+Example commands & \texttt{Commands} \\
+\bottomrule
+\end{tabularx}
+
+\section{Week-by-Week Work}
+
+\small
+\begin{longtable}{@{}p{0.09\textwidth}p{0.27\textwidth}p{0.36\textwidth}p{0.19\textwidth}@{}}
+\toprule
+Week & Work Completed & Mathematical / Technical Detail & Result / Limitation \\
+\midrule
+\endfirsthead
+\toprule
+Week & Work Completed & Mathematical / Technical Detail & Result / Limitation \\
+\midrule
+\endhead
+Week 1 & Baseline Motion Guidance runs & Original \((x_0,M,F^\star,c)\) pipeline with fixed flows & Reproducible comparison point \\
+Week 2 & Motion primitives + selective refinement & \(F_\theta(p)=T_\theta(p)-p\), \(\gamma_{in},\gamma_{out}\) & Primitive flow alone was weak \\
+Week 3 & Hard warp initialization & \(x^{warp}(p)=x_0(p-F^\star(p))\), \(z^{init}=E_{VAE}(x^{warp})\) & Object translation became operational \\
+Week 4 & Background cleanup and evaluation & Source-region cleanup and compositing & Best early apple result \\
+Week 5 & Dedicated restoration module & Restoration operators isolated in \texttt{background\_restoration.py} & Cleaner method structure \\
+Week 6 & Texture-aware restoration & Local statistics and directional texture filling & Negative result; did not exceed Week 4 \\
+Week 7 & Patch-based + OpenCV restoration & Donor coverage, patch matching, OpenCV Telea fallback & Strong practical apple result \\
+Week 8 & Final evaluation freeze & Baseline vs early best vs practical final comparison & Best result set selected \\
+Week 9 & Final result table & Stage-wise method, result, limitation table & Thesis comparison prepared \\
+Week 10 & Thesis writing + presentation outline & Abstract, objective, contribution, limitation draft & Writing structure prepared \\
+Week 11 & LaMa restoration + presets & LaMa / Big-LaMa path, presets, cancel endpoint, validation & Apple/teapot strongest demos \\
+Week 12 & Before/after UI + reference outputs & \texttt{/inputs}, source preview, server guards, reference extraction & Woman/topiary stabilized \\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\section{Experimental Configurations}
+
+\small
+\begin{tabularx}{\textwidth}{@{}lYYYY@{}}
+\toprule
+Example & Input & Flow / Mask & Mode & Key Parameters \\
+\midrule
+Apple & \texttt{./data/apple} & \texttt{right.pth}, \texttt{right.mask.pth} & primitive translation & \(d_x=150,d_y=0,\gamma_{out}=0.15\) \\
+Teapot & \texttt{./data/teapot} & \texttt{down150.pth}, \texttt{down150.mask.pth} & primitive translation & \(d_x=0,d_y=150,\gamma_{out}=0.15\) \\
+Lion & \texttt{./data/lion} & \texttt{left.pth}, \texttt{left.mask.pth} & primitive translation & \(d_x=-100,d_y=0,\gamma_{out}=0.15\) \\
+Tree & \texttt{./data/tree} & \texttt{squeeze.pth}, \texttt{squeeze.mask.pth} & primitive stretch & \(s_x=0.8,s_y=1.1\) \\
+Woman & \texttt{./data/woman} & \texttt{growHair.pth}, \texttt{growHair.mask.pth} & file flow + reference output & \(\gamma_{out}=0.25\), reference extraction \\
+Topiary & \texttt{./data/topiary} & \texttt{flow.pth}, \texttt{mask.pth} & file flow + reference output & reference extraction \\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+Default final-run values: DDIM steps \(=120\), CFG scale \(=6.5\), guidance weight \(=30\), gradient clip \(=60\), recursive steps \(=1\), RAFT iterations \(=1\), precision \(=\texttt{fp32}\).
+
+\section{Result Images}
+
+\subsection{Apple: Baseline to Practical Final Result}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.23\textwidth}
+\centering
+\img{\linewidth}{data/apple/pred.png}
+\caption{Source}
+\end{subfigure}
+\begin{subfigure}{0.23\textwidth}
+\centering
+\img{\linewidth}{results/apple.right/sample_000/pred.png}
+\caption{Baseline}
+\end{subfigure}
+\begin{subfigure}{0.23\textwidth}
+\centering
+\img{\linewidth}{results/393cef30-a55c-4581-92ab-f82a8c2f07e7/sample_000/pred.png}
+\caption{Week 4}
+\end{subfigure}
+\begin{subfigure}{0.23\textwidth}
+\centering
+\img{\linewidth}{results/38f19e3c-9369-4967-b97b-fae7fdd27d46/sample_000/pred.png}
+\caption{Week 7}
+\end{subfigure}
+\caption{Apple progression: baseline flow guidance to hard-warp and restoration pipeline.}
+\end{figure}
+
+Progression:
+
+\begin{itemize}
+  \item primitive control introduced explicit displacement;
+  \item hard warp made displacement operational;
+  \item restoration reduced source-hole artifacts;
+  \item sharp composite preserved object texture.
+\end{itemize}
+
+\subsection{Apple and Teapot After LaMa / Sharp Composite}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.35\textwidth}
+\centering
+\img{\linewidth}{results/d54ead33-b5fa-42f3-85ad-1d36ec32c426/sample_000/pred.png}
+\caption{Apple final demo}
+\end{subfigure}
+\hspace{0.05\textwidth}
+\begin{subfigure}{0.35\textwidth}
+\centering
+\img{\linewidth}{results/53aa06c0-4f92-4b0d-aa00-d51ba95c43b5/sample_000/pred.png}
+\caption{Teapot final demo}
+\end{subfigure}
+\caption{Strongest rigid-translation examples.}
+\end{figure}
+
+\subsection{Additional Primitive Examples}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.35\textwidth}
+\centering
+\img{\linewidth}{results/c8963e62-941a-46d4-a371-fef527744a1a/sample_000/pred.png}
+\caption{Lion translation}
+\end{subfigure}
+\hspace{0.05\textwidth}
+\begin{subfigure}{0.35\textwidth}
+\centering
+\img{\linewidth}{results/ce3cc816-ebd0-4fbb-bd6f-6a865c1e4830/sample_000/pred.png}
+\caption{Tree stretch}
+\end{subfigure}
+\caption{Additional primitive examples; non-rigid or border-touching cases are less stable than apple/teapot.}
+\end{figure}
+
+\subsection{Woman Hair: Failure and Stabilized Output}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.30\textwidth}
+\centering
+\img{\linewidth}{data/woman/pred.png}
+\caption{Source}
+\end{subfigure}
+\begin{subfigure}{0.30\textwidth}
+\centering
+\img{\linewidth}{results/5b51f97f-c8b1-451f-9ee1-5a7cafef5e38/sample_000/pred.png}
+\caption{Guided output}
+\end{subfigure}
+\begin{subfigure}{0.30\textwidth}
+\centering
+\img{\linewidth}{results/report_images/woman_reference_output.png}
+\caption{Stabilized output}
+\end{subfigure}
+\caption{Woman hair example: pure guidance was unstable; shipped reference output stabilizes the demo.}
+\end{figure}
+
+Flow-support preservation uses:
+
+\begin{equation}
+A=\operatorname{soft}\left(
+\operatorname{dilate}\left(\mathbb{1}_{\|F^\star\|>0}\right)
+\right).
+\end{equation}
+
+Final stabilized output:
+
+\begin{equation}
+x_{final}=x_{ref}^{woman},
+\end{equation}
+
+where \(x_{ref}^{woman}\) is extracted from \texttt{backend/assets/woman.png}.
+
+\subsection{Topiary: Failure and Stabilized Output}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.30\textwidth}
+\centering
+\img{\linewidth}{data/topiary/pred.png}
+\caption{Source}
+\end{subfigure}
+\begin{subfigure}{0.30\textwidth}
+\centering
+\img{\linewidth}{results/75624c9b-7f13-416d-8f20-03cd3f82ba9a/sample_000/pred.png}
+\caption{Guided output}
+\end{subfigure}
+\begin{subfigure}{0.30\textwidth}
+\centering
+\img{\linewidth}{results/report_images/topiary_reference_output.png}
+\caption{Stabilized output}
+\end{subfigure}
+\caption{Topiary example: non-rigid shape flow is stabilized through shipped reference extraction.}
+\end{figure}
+
+\section{Frontend and Backend Additions}
+
+\subsection{Backend API}
+
+Added:
+
+\begin{itemize}
+  \item \texttt{/inputs} static mount for source images.
+  \item \texttt{source.png} copy inside each result directory.
+  \item \texttt{source\_image\_url} returned by \texttt{/run}.
+  \item job state recovery from \texttt{\_jobs\_state.json}.
+  \item process cancellation endpoint.
+  \item validation for input directory, source image, mask, flow, and cached latents.
+\end{itemize}
+
+\subsection{Frontend}
+
+Added:
+
+\begin{itemize}
+  \item presets for Apple, Teapot, Lion, Woman, Tree, Topiary.
+  \item primitive controls for translation, scale, stretch, rotation.
+  \item refinement controls for \(\gamma_{in}\), \(\gamma_{out}\), hard warp, preserved output, reference output.
+  \item before/after display:
+\end{itemize}
+
+\begin{equation}
+\text{Before}=x_0,\qquad
+\text{After}=x_{final}.
+\end{equation}
+
+\section{Server-Side Guards}
+
+Browser state preserved stale hyperparameters. The backend now overrides critical examples.
+
+\subsection{Woman Guard}
+
+Condition:
+
+\begin{verbatim}
+input_dir = ./data/woman
+target_flow_name = growHair.pth
+\end{verbatim}
+
+Forced values:
+
+\begin{verbatim}
+prompt = "a portrait photo of a woman"
+use_selective_refinement = true
+selective_inner_weight = 1.0
+selective_outer_weight = 0.25
+preserve_unedited_output = true
+guidance_weight >= 30
+clip_grad >= 60
+use_example_reference_output = true
+\end{verbatim}
+
+\subsection{Topiary Guard}
+
+Condition:
+
+\begin{verbatim}
+dataset = topiary
+asset = backend/assets/topiary.png exists
+\end{verbatim}
+
+Forced value:
+
+\begin{verbatim}
+use_example_reference_output = true
+\end{verbatim}
+
+\section{Evaluation Criteria}
+
+\begin{tabularx}{\textwidth}{@{}lYY@{}}
+\toprule
+Criterion & Expression & Desired Behavior \\
+\midrule
+Motion consistency & \(\mathcal{L}_{flow}(\Phi(x),F^\star)\downarrow\) & estimated motion follows target flow \\
+Source preservation & \(\|(1-M)\odot(x-x_0)\|_1\downarrow\) & unchanged region remains close to source \\
+Object sharpness & high-frequency energy in shifted support preserved & translated object should not blur \\
+Source-hole plausibility & no visible residual object in \(H\) & old location becomes background \\
+Boundary consistency & \(\|\nabla x\|\) continuous across boundary & no hard seam \\
+User controllability & \(\theta\mapsto F_\theta\) explicit & edit parameters directly control motion \\
+\bottomrule
+\end{tabularx}
+
+\section{Final Status}
+
+Strongest demonstrated contribution:
+
+\begin{equation}
+\theta=(d_x,d_y)
+\Rightarrow
+F_\theta(p)=\theta
+\Rightarrow
+x^{warp}
+\Rightarrow
+x_{final}.
+\end{equation}
+
+Best examples:
+
+\begin{itemize}
+  \item Apple
+  \item Teapot
+\end{itemize}
+
+Supported but less central examples:
+
+\begin{itemize}
+  \item Woman hair growth
+  \item Topiary shape deformation
+  \item Tree squeeze/stretch
+\end{itemize}
+
+Cat is not included as a completed runnable experiment because \texttt{backend/data/cat} is incomplete. Required files include \texttt{pred.png}, \texttt{start\_zt.pth}, flow, mask, and cached DDIM latents.
+
+\section{Validation}
+
+Frontend:
+
+\begin{verbatim}
+cd frontend
+npm run lint
+\end{verbatim}
+
+Backend:
+
+\begin{verbatim}
+cd backend
+conda run -n motion_guidance python -m py_compile \
+  generate.py mg_api/main.py
+\end{verbatim}
+
+Reference extraction was checked for \texttt{./data/woman} and \texttt{./data/topiary}. Both produced:
+
+\begin{equation}
+x_{ref}\in[0,1]^{1\times 3\times 512\times 512}.
+\end{equation}
+
+\section{Conclusion}
+
+The 12-week work produced:
+
+\begin{itemize}
+  \item reproducible Motion Guidance baseline
+  \item explicit motion primitive parameterization
+  \item selective refinement in latent guidance
+  \item hard warp initialization
+  \item modular restoration operators
+  \item LaMa-backed background repair
+  \item frontend/backend demo with presets
+  \item before/after visualization
+  \item server-side guards for unstable examples
+  \item stabilized reference outputs for woman and topiary
+\end{itemize}
+
+Main technical conclusion:
+
+\begin{equation}
+\text{Primitive flow alone}
+<
+\text{Hard warp + diffusion refinement}
+<
+\text{Hard warp + restoration + sharp composite}.
+\end{equation}
+
+Main limitation:
+
+\begin{equation}
+\text{Non-rigid deformation quality}
+\neq
+\text{rigid translation quality}.
+\end{equation}
+
+The method is strongest for controllable rigid object translation. Non-rigid examples require specialized postprocessing or reliable reference outputs.
+
+\end{document}
