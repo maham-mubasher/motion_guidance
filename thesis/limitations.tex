@@ -5,7 +5,7 @@
 
 \section{Limitations}
 
-The proposed system exposes practical controls for motion-guided image editing, but the empirical evidence is still limited. The final evaluation includes a controlled apple ablation with five variants and three seeds, plus additional three-seed teapot and tree generated cases. This is stronger than a single qualitative result, but the only full component ablation remains one object, one background, one translation magnitude, one mask, and one main hyperparameter setting. The following limitations bound the conclusions that can be drawn.
+The proposed system exposes practical controls for motion-guided image editing, but the empirical evidence is still limited. The final evaluation includes a controlled apple ablation with five variants and three seeds, additional three-seed teapot and tree generated cases, a compact apple hyperparameter study, and a source-hole restoration comparison. This is stronger than a single qualitative result, but the only full component ablation remains one object, one background, one translation magnitude, and one mask. The following limitations bound the conclusions that can be drawn.
 
 \subsection{Limited Reliability for Non-Rigid Motion}
 
@@ -21,7 +21,7 @@ When an object is moved, the original object location becomes newly exposed. Thi
 \end{equation}
 where $M$ is the original object mask and $T_\theta(M)$ is the transformed mask. Although restoration and compositing improve this region, the filled background may still show synthetic texture, weak boundary blending, or residual artifacts. This is the main visual limitation of the current lightweight pipeline.
 
-The implementation supports LaMa and simpler filling strategies, but the thesis artifacts do not contain a controlled comparison among them. Large disocclusions, structured backgrounds, shadows, reflections, and repeated textures remain difficult regardless of the selected restorer.
+The final thesis artifacts include a controlled apple restoration comparison using the same moved object and source-hole mask. In that comparison, LaMa gives the lowest measured source-hole color discontinuity and the cleanest visual result among the tested methods. This supports the selected restoration method for the apple case, but it does not solve restoration generally. Large disocclusions, structured backgrounds, shadows, reflections, and repeated textures remain difficult regardless of the selected restorer.
 
 \subsection{Dependence on Masks, Flows, and Cached Latents}
 
@@ -31,9 +31,9 @@ This dependency also affects reproducibility. A complete runnable example requir
 
 \subsection{Limited Quantitative Evaluation}
 
-The evaluation reports quantitative metrics for the apple ablation and for additional teapot and tree runs, but it is not equivalent to a benchmark evaluation and cannot establish broad statistical reliability, average improvement, or superiority over competing methods. More rigorous evaluation requires repeated trials across object categories, motion magnitudes, mask qualities, backgrounds, random seeds, prompts, and RAFT iteration counts.
+The evaluation reports quantitative metrics for the apple ablation, additional teapot and tree runs, a compact hyperparameter study, and a restoration comparison. It is still not equivalent to a benchmark evaluation and cannot establish broad statistical reliability, average improvement, or superiority over competing methods. More rigorous evaluation requires repeated trials across object categories, motion magnitudes, mask qualities, backgrounds, random seeds, prompts, and broader combinations of RAFT iterations, guidance weights, and DDIM schedules.
 
-The reported apple ablation metrics are useful for the central RAFT question because they compare no-RAFT and RAFT-guided diffusion under fixed seeds. The teapot and tree metrics are useful as additional inspectable cases, but they should not be interpreted as proof of broad generalization.
+The reported apple ablation metrics are useful for the central RAFT question because they compare no-RAFT and RAFT-guided diffusion under fixed seeds. The hyperparameter study shows parameter sensitivity, especially for RAFT iteration count, but it is one-factor-at-a-time and uses one seed. The teapot and tree metrics are useful as additional inspectable cases, but they should not be interpreted as proof of broad generalization.
 
 \subsection{Internal and External Validity}
 
@@ -57,8 +57,8 @@ Third, the evaluation should be expanded. A stronger experimental study should i
 
 Fourth, the user workflow can be improved through automatic mask generation, interactive drag controls, real-time preview, and automatic parameter validation. This would reduce the amount of manual setup needed before running an edit.
 
-Finally, inference speed remains a practical limitation. The current system uses diffusion sampling, optical-flow guidance, and restoration, which can be expensive. Faster samplers, fewer refinement steps, model distillation, and asynchronous job scheduling would make the system more suitable for interactive use.
+Finally, inference speed remains a practical limitation. The current system uses diffusion sampling, optical-flow guidance, and restoration, which can be expensive. The compact hyperparameter study suggests that fewer DDIM steps can reduce runtime substantially, but this comes with worse preservation in the apple case. Faster samplers, fewer refinement steps, model distillation, and asynchronous job scheduling would make the system more suitable for interactive use.
 
 \section{Summary}
 
-The correct scope is an implemented hybrid editing workflow with direct primitive controls, a focused fixed-seed apple ablation, and two additional generated case studies. The evidence shows RAFT-guided improvement in pre-composite diffusion alignment, while final visual quality depends heavily on restoration and compositing. Stronger restoration, reliable non-rigid editing, broader quantitative testing, and faster interaction remain open work.
+The correct scope is an implemented hybrid editing workflow with direct primitive controls, a focused fixed-seed apple ablation, two additional generated case studies, a compact hyperparameter sensitivity study, and a controlled restoration comparison. The evidence shows RAFT-guided improvement in pre-composite diffusion alignment, while final visual quality depends heavily on restoration and compositing. Stronger restoration, reliable non-rigid editing, broader quantitative testing, and faster interaction remain open work.

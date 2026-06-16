@@ -7,10 +7,12 @@
 \contentsline {table}{\numberline {6.4}{\ignorespaces Method variants evaluated in the thesis.}}{26}{}%
 \contentsline {table}{\numberline {7.1}{\ignorespaces Apple ablation results averaged over three seeds. The deterministic baseline has no diffusion loss trajectory because sampling is skipped.}}{32}{}%
 \contentsline {table}{\numberline {7.2}{\ignorespaces Additional generated cases averaged over three seeds. These results broaden the qualitative evidence but are not controlled component ablations.}}{36}{}%
-\contentsline {table}{\numberline {7.3}{\ignorespaces Summary of examples and evidence status.}}{38}{}%
-\contentsline {table}{\numberline {8.1}{\ignorespaces Controlled apple ablation variants.}}{42}{}%
-\contentsline {table}{\numberline {10.1}{\ignorespaces Weekly development summary.}}{53}{}%
-\contentsline {table}{\numberline {10.2}{\ignorespaces Implementation artifacts used in the thesis.}}{53}{}%
-\contentsline {table}{\numberline {10.3}{\ignorespaces Final status of project examples.}}{55}{}%
-\contentsline {table}{\numberline {10.4}{\ignorespaces Main reproducibility parameters.}}{62}{}%
-\contentsline {table}{\numberline {10.5}{\ignorespaces Status of additional qualitative examples.}}{65}{}%
+\contentsline {table}{\numberline {7.3}{\ignorespaces Compact apple hyperparameter study. Each row changes one setting around the reference configuration. Final compositing is disabled to isolate diffusion-stage behavior.}}{40}{}%
+\contentsline {table}{\numberline {7.4}{\ignorespaces Source-hole restoration comparison on the apple translation case. Lower source-hole color jump and preservation error are preferred, while visual inspection is required because smoothness alone can hide unrealistic texture.}}{40}{}%
+\contentsline {table}{\numberline {7.5}{\ignorespaces Summary of examples and evidence status.}}{41}{}%
+\contentsline {table}{\numberline {8.1}{\ignorespaces Controlled apple ablation variants.}}{45}{}%
+\contentsline {table}{\numberline {10.1}{\ignorespaces Weekly development summary.}}{56}{}%
+\contentsline {table}{\numberline {10.2}{\ignorespaces Implementation artifacts used in the thesis.}}{56}{}%
+\contentsline {table}{\numberline {10.3}{\ignorespaces Final status of project examples.}}{58}{}%
+\contentsline {table}{\numberline {10.4}{\ignorespaces Main reproducibility parameters.}}{65}{}%
+\contentsline {table}{\numberline {10.5}{\ignorespaces Status of additional qualitative examples.}}{68}{}%

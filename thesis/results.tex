@@ -5,9 +5,11 @@
 
 \section{Evaluation Overview}
 
-This chapter reports the final evidence collected for the inference-time motion-editing pipeline. The evaluation is centered on the apple translation example because it is the only example for which the complete source image, mask, flow support, cached latents, generated outputs, diagnostic arrays, and fixed-seed repeated runs are locally available. The experiment therefore supports a focused case study rather than a broad benchmark across object categories.
+This chapter reports the final evidence collected for the inference-time motion-editing pipeline. The evaluation is centered on the apple translation example because it is the only example for which the complete source image, mask, flow support, cached latents, generated outputs, diagnostic arrays, fixed-seed repeated runs, compact hyperparameter study, and restoration comparison are locally available. The experiment therefore supports a focused case study rather than a broad benchmark across object categories.
 
-The final apple evaluation contains five method variants and three random seeds, giving fifteen runs in total. The variants are designed to answer the central examination question: if the final apple is produced by geometric movement, inpainting, and source-object compositing, what measurable contribution does RAFT-guided diffusion make?
+The final apple evaluation contains five method variants and three random seeds, giving fifteen runs in total. The variants are designed to answer the central examination question: if the final apple is produced by geometric movement, inpainting, and source-object compositing, what measurable contribution does RAFT-guided diffusion make? Two smaller follow-up studies are also reported: a one-factor-at-a-time hyperparameter study and a source-hole restoration comparison.
+
+Translation is the main evaluated operation in this thesis. Scale, rotation, and stretch are implemented as motion-primitive options in the system, but they are not fully evaluated with the same fixed-seed ablation protocol. They should therefore be interpreted as implemented capabilities rather than as experimentally validated results.
 
 \section{Implemented ML Behavior}
 
@@ -146,6 +148,72 @@ Figure~\ref{fig:tree-extra-grid} shows the tree runs. Seed 2 is visually the mos
   \label{fig:tree-extra-grid}
 \end{figure}
 
+\section{Compact Hyperparameter Study}
+
+A compact hyperparameter study was added to address the concern that key inference values were previously fixed without experimental support. The study uses the same apple scene, the same primitive translation of $d_x=150$, $d_y=0$, the same seed, and the same hard-warp initialization. It changes one factor at a time around the reference setting of guidance weight 30, one RAFT iteration, and 80 DDIM steps. Final compositing is disabled in these runs so that the measurements refer to the diffusion-stage output rather than to deterministic source-object placement.
+
+Table~\ref{tab:hyperparameter-study} reports the main outcomes. The results should be interpreted as a small sensitivity analysis, not as a complete grid search. Nevertheless, they support three useful observations. First, increasing the RAFT recurrent refinement from one to five iterations substantially reduces final flow loss in this apple setting. Second, guidance weight 10 is too weak relative to 30, while guidance weight 50 does not produce a clear improvement over 30. Third, 40 DDIM steps nearly halves runtime but increases the preservation error relative to 80 steps.
+
+\begin{table}[p]
+  \centering
+  \tiny
+  \caption{Compact apple hyperparameter study. Each row changes one setting around the reference configuration. Final compositing is disabled to isolate diffusion-stage behavior.}
+  \label{tab:hyperparameter-study}
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{p{1.0in}|p{0.48in}|p{0.42in}|p{0.42in}|p{0.56in}|p{0.56in}|p{0.6in}|p{0.56in}}
+    \hline
+    \textbf{Run} & \textbf{Weight} & \textbf{RAFT} & \textbf{Steps} & \textbf{Flow loss} & \textbf{Best flow} & \textbf{Preserve L1} & \textbf{Runtime} \\ \hline \hline
+    Guidance 10 & 10 & 1 & 80 & 6.29 & 3.93 & 0.0079 & 115.71 s \\ \hline
+    Reference & 30 & 1 & 80 & 5.08 & 3.12 & 0.0066 & 122.25 s \\ \hline
+    Guidance 50 & 50 & 1 & 80 & 5.14 & 3.14 & 0.0068 & 123.86 s \\ \hline
+    RAFT iterations 3 & 30 & 3 & 80 & 4.19 & 3.10 & 0.0071 & 125.05 s \\ \hline
+    RAFT iterations 5 & 30 & 5 & 80 & 2.81 & 2.40 & 0.0050 & 125.53 s \\ \hline
+    DDIM steps 40 & 30 & 1 & 40 & 4.74 & 3.50 & 0.0140 & 58.20 s \\ \hline
+  \end{tabular}
+\end{table}
+
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=5.9in]{figures/hyperparameter_study_grid.png}
+  \caption{Representative apple outputs from the compact hyperparameter study. The grid shows source, hard-warp initialization, decoded diffusion output, and final pre-composite output for each setting.}
+  \label{fig:hyperparameter-study-grid}
+\end{figure}
+
+The main conclusion from this study is that the original one-iteration RAFT setting was conservative rather than optimal. Increasing RAFT iterations improved the measured motion alignment with only a small runtime increase in this environment. However, because the study uses one image and one seed, it is evidence for parameter sensitivity, not a definitive global parameter selection.
+
+\section{Restoration Comparison}
+
+A separate restoration comparison was performed because the final contained-translation result depends strongly on the source-hole fill. All restoration methods use the same apple image, the same moved object, and the same source-hole mask. This isolates the restoration stage from diffusion guidance and from stochastic sampling.
+
+The compared methods are local fill, directional fill, OpenCV Telea inpainting, LaMa inpainting, and the final selected restoration. In the current environment, LaMa is available, and the final selected restoration is therefore the LaMa-based output. Table~\ref{tab:restoration-comparison} summarizes the measured differences. The source-hole color jump measures color discontinuity across the restored region boundary; lower values indicate smoother integration with the surrounding background. Background preservation L1 is measured outside the source and destination object supports.
+
+\begin{table}[p]
+  \centering
+  \scriptsize
+  \caption{Source-hole restoration comparison on the apple translation case. Lower source-hole color jump and preservation error are preferred, while visual inspection is required because smoothness alone can hide unrealistic texture.}
+  \label{tab:restoration-comparison}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{p{1.25in}|p{0.92in}|p{0.9in}|p{0.95in}}
+    \hline
+    \textbf{Method} & \textbf{Source-hole color jump} & \textbf{Hole gradient mean} & \textbf{Background L1} \\ \hline \hline
+    Local fill & 0.0244 & 0.0066 & 0.0000 \\ \hline
+    Directional fill & 0.0665 & 0.0108 & 0.0000 \\ \hline
+    OpenCV inpainting & 0.0293 & 0.0047 & 0.0041 \\ \hline
+    LaMa inpainting & 0.0096 & 0.0149 & 0.0046 \\ \hline
+    Final selected & 0.0096 & 0.0149 & 0.0046 \\ \hline
+  \end{tabular}
+\end{table}
+
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=5.9in]{figures/restoration_comparison_grid.png}
+  \caption{Apple source-hole restoration comparison using the same moved object and source-hole mask. LaMa is visually cleaner than the local, directional, and OpenCV fills in this case and is therefore used as the final selected restoration.}
+  \label{fig:restoration-comparison-grid}
+\end{figure}
+
+The local and directional fills preserve untouched background pixels exactly, which explains their zero background-preservation error outside the measured supports. However, visually they introduce obvious smeared or directional artifacts in the source-hole region. OpenCV produces a smoother numeric gradient but leaves a fan-like fill pattern. LaMa produces the lowest boundary color discontinuity and the most plausible restored background in the contact sheet. This justifies the selected restoration method for the apple contained-translation result, while also showing that restoration is a separate contributor from RAFT-guided diffusion.
+
 \section{Status of Other Examples}
 
 Table~\ref{tab:main-generated-results} distinguishes the evaluated apple ablation and additional generated cases from configured or presentation examples. A configured preset is not counted as an evaluated result unless its complete output artifacts are available for inspection.
@@ -169,8 +237,8 @@ Table~\ref{tab:main-generated-results} distinguishes the evaluated apple ablatio
 
 \section{Evaluation Summary}
 
-The evaluation supports five conclusions. First, the complete pipeline can produce a stable contained rightward apple translation across three seeds. Second, RAFT-guided primitive diffusion improves the measured diffusion trajectory compared with no-RAFT diffusion. Third, original file-flow Motion Guidance performs worse than the primitive RAFT-guided variants on this apple setup. Fourth, additional teapot and tree runs broaden the inspectable evidence, but they are not controlled ablations. Fifth, the final visual quality of contained translation is dominated by restoration and compositing, so the thesis must not claim that diffusion alone creates the final apple or teapot result.
+The evaluation supports seven conclusions. First, the complete pipeline can produce a stable contained rightward apple translation across three seeds. Second, RAFT-guided primitive diffusion improves the measured diffusion trajectory compared with no-RAFT diffusion. Third, original file-flow Motion Guidance performs worse than the primitive RAFT-guided variants on this apple setup. Fourth, additional teapot and tree runs broaden the inspectable evidence, but they are not controlled ablations. Fifth, the compact hyperparameter study shows that RAFT iteration count materially affects motion alignment in the apple case. Sixth, the restoration comparison shows why LaMa is selected for the final source-hole repair when available. Seventh, the final visual quality of contained translation is dominated by restoration and compositing, so the thesis must not claim that diffusion alone creates the final apple or teapot result.
 
-The evidence remains narrow. The only full component ablation covers one object category, one background, one translation magnitude, one mask, one RAFT-iteration setting, and three seeds. The additional teapot and tree cases reduce the single-result weakness, but they do not establish broad generalization or state-of-the-art superiority.
+The evidence remains narrow. The only full component ablation covers one object category, one background, one translation magnitude, one mask, and three seeds. The additional teapot and tree cases reduce the single-result weakness, and the compact hyperparameter and restoration studies address two specific methodological criticisms. They still do not establish broad generalization or state-of-the-art superiority.
 
 \FloatBarrier

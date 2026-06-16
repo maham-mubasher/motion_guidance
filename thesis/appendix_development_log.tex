@@ -31,7 +31,7 @@ The project objective was to build a controllable extension of Motion Guidance f
     \hline
     \textbf{Stage} & \textbf{Work Completed} & \textbf{Technical Detail} & \textbf{Outcome} \\ \hline \hline
     Weeks 1--3 & Baseline reproduction & Original Motion Guidance pipeline with fixed source image, mask, flow, and prompt & Established reproducible comparison point \\ \hline
-    Weeks 4--5 & Motion primitives and selective refinement & Generated target flow using $F(p)=T(p)-p$ and weighted guidance using $\gamma_{\mathrm{in}}$ and $\gamma_{\mathrm{out}}$ & Primitive control improved usability, but flow-only guidance was weak \\ \hline
+    Weeks 4--5 & Motion primitives and selective refinement & Generated target flow using $F(p)=T(p)-p$ and weighted guidance using $\gamma_{\mathrm{in}}$ and $\gamma_{\mathrm{out}}$ & Primitive control made motion specification more explicit, but flow-only guidance was weak \\ \hline
     Weeks 6--7 & Hard warp initialization & Applied $x_{\mathrm{warp}}(p)=x_0(p-F(p))$ before diffusion refinement & Object translation became operational \\ \hline
     Weeks 8--9 & Background cleanup and final evaluation organization & Tested source-hole cleanup, compositing, and stage-wise comparison & Best early apple result selected and comparison structure prepared \\ \hline
     Week 10 & Thesis writing and restoration module cleanup & Organized method, contribution, limitation, and evaluation narrative & Thesis structure prepared \\ \hline

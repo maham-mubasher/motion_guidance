@@ -21,13 +21,15 @@ Development records indicate that primitive flow alone did not reliably produce 
 
 The second finding is quantitative: RAFT-guided diffusion improves the pre-composite diffusion trajectory. Across three apple seeds, adding RAFT guidance reduced final flow loss from 8.46 to 5.80, best recorded flow loss from 8.16 to 3.07, and total guidance energy from 30.57 to 21.86 compared with the no-RAFT diffusion variant. This directly answers the concern that RAFT might not contribute measurable evidence.
 
-The third finding is architectural: learned motion guidance and source-hole completion are different problems. RAFT can supervise where content should move, but newly exposed background requires an inpainting or restoration model. The final path therefore separates ML-guided sampling from disocclusion handling. The visually strongest final apple and teapot translation results are hybrid composites, so those final images should not be presented as the output of diffusion alone.
+The third finding is architectural: learned motion guidance and source-hole completion are different problems. RAFT can supervise where content should move, but newly exposed background requires an inpainting or restoration model. The final path therefore separates ML-guided sampling from disocclusion handling. The restoration comparison shows that LaMa produces the lowest source-hole color discontinuity and the cleanest visual restoration for the apple case among the tested methods. The visually strongest final apple and teapot translation results are hybrid composites, so those final images should not be presented as the output of diffusion alone.
 
 The fourth finding is about scope. Additional teapot and tree runs reduce the weakness of having only one inspectable output. Teapot supports the practical contained-translation workflow, while tree shows that file-flow or non-rigid deformation remains less stable and should be treated as a stress case.
 
+The fifth finding is about inference sensitivity. The compact hyperparameter study shows that the original one-iteration RAFT setting is not necessarily the strongest choice for motion alignment. In the apple case, five RAFT iterations reduced final flow loss from 5.08 to 2.81 relative to the one-iteration reference, while reducing DDIM steps from 80 to 40 improved runtime but increased preservation error. These results justify discussing the selected parameters as practical engineering choices rather than as globally optimal values.
+
 \section{Answer to the Research Question}
 
-The thesis answers the research question by showing that Motion Guidance can be extended into a more controllable image-editing pipeline through a combination of explicit motion control and post-diffusion correction. The final system improves practical usability in three ways:
+The thesis answers the research question by showing that Motion Guidance can be extended into a more controllable image-editing pipeline through a combination of explicit motion control and post-diffusion correction. The final system improves implemented motion control in three ways:
 
 \begin{enumerate}
   \item it converts simple geometric motion into dense supervision for a learned flow estimator;
@@ -41,6 +43,6 @@ The refined answer to the central examination question is that RAFT guidance con
 
 \section{Final Remarks}
 
-The work does not establish broad comparative superiority, statistical reliability across many scenes, or reliable non-rigid editing quality. Source-hole restoration can remain imperfect, and the final contained-translation images are deterministic composites rather than isolated diffusion outputs. The supported contribution is therefore the design, implementation, and focused fixed-seed evaluation of an auditable hybrid workflow.
+The work does not establish broad comparative superiority, statistical reliability across many scenes, or reliable non-rigid editing quality. Source-hole restoration can remain imperfect, and the final contained-translation images are deterministic composites rather than isolated diffusion outputs. The supported contribution is therefore the design, implementation, and focused fixed-seed evaluation of an auditable hybrid workflow, supplemented by compact hyperparameter and restoration studies.
 
-Overall, the project shows how a latent diffusion generator and a neural optical-flow estimator can interact through inference-time gradients. Future work should extend the current diagnostics to more images, compare RAFT iterations and guidance hyperparameters, improve restoration comparisons, isolate pre-composite diffusion outputs in additional cases, and test learned restoration and non-rigid supervision.
+Overall, the project shows how a latent diffusion generator and a neural optical-flow estimator can interact through inference-time gradients. Future work should extend the current diagnostics to more images, broaden the hyperparameter study beyond the apple case, compare against stronger external baselines, isolate pre-composite diffusion outputs in additional cases, and test learned restoration and non-rigid supervision.
