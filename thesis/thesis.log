@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.1.30)  16 JUN 2026 23:44
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.1.30)  17 JUN 2026 01:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -660,75 +660,75 @@ on,
 
 
 
-]
-Overfull \hbox (1.11966pt too wide) in paragraph at lines 48--57
+] [31]
+Overfull \hbox (1.11966pt too wide) in paragraph at lines 72--81
  [][] 
  []
 
-[31]
 <figures/apple_ablation_flow_loss.png, id=158, 650.43pt x 375.804pt>
 File: figures/apple_ablation_flow_loss.png Graphic file (type png)
 <use figures/apple_ablation_flow_loss.png>
 Package pdftex.def Info: figures/apple_ablation_flow_loss.png  used on input li
-ne 69.
+ne 93.
 (pdftex.def)             Requested size: 419.16621pt x 242.18816pt.
 <figures/apple_ablation_total_energy.png, id=159, 650.43pt x 375.804pt>
 File: figures/apple_ablation_total_energy.png Graphic file (type png)
 <use figures/apple_ablation_total_energy.png>
 Package pdftex.def Info: figures/apple_ablation_total_energy.png  used on input
- line 78.
+ line 102.
 (pdftex.def)             Requested size: 419.16621pt x 242.18816pt.
 <figures/apple_ablation_final_grid.png, id=160, 1304.875pt x 782.925pt>
 File: figures/apple_ablation_final_grid.png Graphic file (type png)
 <use figures/apple_ablation_final_grid.png>
 Package pdftex.def Info: figures/apple_ablation_final_grid.png  used on input l
-ine 89.
+ine 113.
 (pdftex.def)             Requested size: 426.39255pt x 255.8334pt.
-<figures/apple_ablation_pre_composite_grid.png, id=161, 843.15pt x 843.15pt>
+[32] [33 <./figures/apple_ablation_flow_loss.png>] [34 <./figures/apple_ablatio
+n_total_energy.png> <./figures/apple_ablation_final_grid.png>]
+<figures/apple_ablation_pre_composite_grid.png, id=172, 843.15pt x 843.15pt>
 File: figures/apple_ablation_pre_composite_grid.png Graphic file (type png)
 <use figures/apple_ablation_pre_composite_grid.png>
 Package pdftex.def Info: figures/apple_ablation_pre_composite_grid.png  used on
- input line 98.
+ input line 122.
 (pdftex.def)             Requested size: 411.93877pt x 411.93776pt.
- [32] [33 <./figures/apple_ablation_flow_loss.png>] [34 <./figures/apple_ablati
-on_total_energy.png> <./figures/apple_ablation_final_grid.png>] [35 <./figures/
-apple_ablation_pre_composite_grid.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 128--128
+
+Underfull \hbox (badness 10000) in paragraph at lines 152--152
 []|\OT1/ptm/m/n/8 0.0005 $\OMS/cmsy/m/n/8 ^^F$
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 129--129
+Underfull \hbox (badness 10000) in paragraph at lines 153--153
 []|\OT1/ptm/m/n/8 0.0014 $\OMS/cmsy/m/n/8 ^^F$
  []
 
-<figures/teapot_full_pipeline_grid.png, id=176, 983.675pt x 686.565pt>
+<figures/teapot_full_pipeline_grid.png, id=173, 983.675pt x 686.565pt>
 File: figures/teapot_full_pipeline_grid.png Graphic file (type png)
 <use figures/teapot_full_pipeline_grid.png>
 Package pdftex.def Info: figures/teapot_full_pipeline_grid.png  used on input l
-ine 137.
+ine 161.
 (pdftex.def)             Requested size: 426.39255pt x 297.60574pt.
-<figures/tree_full_pipeline_grid.png, id=177, 883.3pt x 686.565pt>
+<figures/tree_full_pipeline_grid.png, id=174, 883.3pt x 686.565pt>
 File: figures/tree_full_pipeline_grid.png Graphic file (type png)
 <use figures/tree_full_pipeline_grid.png>
 Package pdftex.def Info: figures/tree_full_pipeline_grid.png  used on input lin
-e 146.
+e 170.
 (pdftex.def)             Requested size: 426.39255pt x 331.42268pt.
-[36] [37 <./figures/teapot_full_pipeline_grid.png>] [38 <./figures/tree_full_pi
-peline_grid.png (PNG copy)>]
+[35] [36 <./figures/apple_ablation_pre_composite_grid.png>] [37 <./figures/teap
+ot_full_pipeline_grid.png>] [38 <./figures/tree_full_pipeline_grid.png (PNG cop
+y)>]
 <figures/hyperparameter_study_grid.png, id=189, 1051.93pt x 1260.71pt>
 File: figures/hyperparameter_study_grid.png Graphic file (type png)
 <use figures/hyperparameter_study_grid.png>
 Package pdftex.def Info: figures/hyperparameter_study_grid.png  used on input l
-ine 178.
+ine 202.
 (pdftex.def)             Requested size: 426.39255pt x 511.0272pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 199--199
+Underfull \hbox (badness 10000) in paragraph at lines 223--223
 []|\OT1/ptm/b/n/8 Source-hole color
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 199--199
+Underfull \hbox (badness 10000) in paragraph at lines 223--223
 []|\OT1/ptm/b/n/8 Hole gra-di-ent
  []
 
@@ -736,40 +736,40 @@ Underfull \hbox (badness 10000) in paragraph at lines 199--199
 File: figures/restoration_comparison_grid.png Graphic file (type png)
 <use figures/restoration_comparison_grid.png>
 Package pdftex.def Info: figures/restoration_comparison_grid.png  used on input
- line 210.
+ line 234.
 (pdftex.def)             Requested size: 426.39255pt x 80.10742pt.
-
-Underfull \hbox (badness 2503) in paragraph at lines 228--228
+[39] [40 <./figures/hyperparameter_study_grid.png (PNG copy)>] [41 <./figures/r
+estoration_comparison_grid.png (PNG copy)>]
+Underfull \hbox (badness 2503) in paragraph at lines 252--252
 []|\OT1/ptm/m/n/10.95 Primary con-trolled quan-ti-ta-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 229--229
+Underfull \hbox (badness 10000) in paragraph at lines 253--253
 []|\OT1/ptm/m/n/10.95 Additional contained-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 229--229
+Underfull \hbox (badness 10000) in paragraph at lines 253--253
 \OT1/ptm/m/n/10.95 translation ev-i-dence; fi-nal
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 230--230
+Underfull \hbox (badness 10000) in paragraph at lines 254--254
 []|\OT1/ptm/m/n/10.95 File-flow
  []
 
 
-Underfull \hbox (badness 1571) in paragraph at lines 231--231
+Underfull \hbox (badness 1571) in paragraph at lines 255--255
 []|\OT1/ptm/m/n/10.95 Excluded from main re-sults
  []
 
 
-Underfull \hbox (badness 4739) in paragraph at lines 231--231
+Underfull \hbox (badness 4739) in paragraph at lines 255--255
 \OT1/ptm/m/n/10.95 be-cause the ob-ject sup-port
  []
 
-[39] [40 <./figures/hyperparameter_study_grid.png (PNG copy)>] [41 <./figures/r
-estoration_comparison_grid.png (PNG copy)>]) [42]
+[42]) [43]
 \openout2 = `ablation.aux'.
 
  (./ablation.tex
@@ -799,36 +799,36 @@ Underfull \hbox (badness 3849) in paragraph at lines 42--42
 []|\OT1/ptm/m/n/10.95 Does RAFT guid-ance im-
  []
 
-[43
+[44
 
 
 
 
-] [44] [45] [46])
+] [45] [46] [47])
 \openout2 = `limitations.aux'.
 
  (./limitations.tex
 \relax \fontsize {14.4}{15}\selectfont {Chapter} 9.
-[47
+[48
 
 
 
 
 
-] [48] [49]) [50]
+] [49] [50]) [51]
 \openout2 = `conclusion.aux'.
 
  (./conclusion.tex
 \relax \fontsize {14.4}{15}\selectfont {Chapter} 10.
-[51
+[52
 
 
 
 
-] [52]) [53] (./thesis.bbl [54
+] [53]) [54] (./thesis.bbl [55
 
 
-]) [55]
+]) [56]
 \openout2 = `appendix_development_log.aux'.
 
  (./appendix_development_log.tex
@@ -861,17 +861,17 @@ Underfull \hbox (badness 7291) in paragraph at lines 39--39
 []|\OT1/ptm/m/n/8 Presentation path sep-a-rated
  []
 
-[56
+[57
 
-] [57]
+] [58]
 Underfull \hbox (badness 10000) in paragraph at lines 89--89
 []|\OT1/ptm/m/n/8 Non-rigid de-for-ma-tion lim-i-ta-tion
  []
 
-) [58] [59]
+) [59] [60]
 \openout2 = `appendix_reproducibility.aux'.
 
- (./appendix_reproducibility.tex [60
+ (./appendix_reproducibility.tex [61
 
 
 
@@ -890,7 +890,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 82--82
 []|\OT1/ptm/m/n/8 presentation as-set
  []
 
-[61] [62] [63] [64]) [65] [66]
+[62] [63] [64] [65]) [66] [67]
 \openout2 = `appendix_extra_results.aux'.
 
  (./appendix_extra_results.tex
@@ -909,7 +909,7 @@ File: figures/apple_ablation_pre_composite_grid.png Graphic file (type png)
 Package pdftex.def Info: figures/apple_ablation_pre_composite_grid.png  used on
  input line 36.
 (pdftex.def)             Requested size: 411.93877pt x 411.93776pt.
- [67
+ [68
 
 
 
@@ -929,17 +929,17 @@ Underfull \hbox (badness 4378) in paragraph at lines 79--79
 []|\OT1/ptm/m/n/8 Additional contained-translation ev-i-
  []
 
-) [68] [69] [70] [71] [72] (./thesis.aux (./frontstuff.aux) (./intro.aux)
+) [69] [70] [71] [72] [73] (./thesis.aux (./frontstuff.aux) (./intro.aux)
 (./literature.aux) (./baseline.aux) (./methodology.aux)
 (./system_implementation.aux) (./experimental_setup.aux) (./results.aux)
 (./ablation.aux) (./limitations.aux) (./conclusion.aux)
 (./appendix_development_log.aux) (./appendix_reproducibility.aux)
 (./appendix_extra_results.aux)) ) 
 Here is how much of TeX's memory you used:
- 5278 strings out of 478287
- 92028 string characters out of 5849289
- 390893 words of memory out of 5000000
- 23281 multiletter control sequences out of 15000+600000
+ 5279 strings out of 478287
+ 92052 string characters out of 5849289
+ 385904 words of memory out of 5000000
+ 23282 multiletter control sequences out of 15000+600000
  493788 words of font info for 80 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  55i,13n,63p,976b,396s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -958,10 +958,10 @@ ts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/uc
 rr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/
 share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/t
 exmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on thesis.pdf (84 pages, 15368290 bytes).
+Output written on thesis.pdf (85 pages, 15370673 bytes).
 PDF statistics:
- 367 PDF objects out of 1000 (max. 8388607)
- 234 compressed objects within 3 object streams
+ 371 PDF objects out of 1000 (max. 8388607)
+ 237 compressed objects within 3 object streams
  0 named destinations out of 1000 (max. 500000)
  51 words of extra memory for PDF output out of 10000 (max. 10000000)
 

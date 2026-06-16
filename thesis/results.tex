@@ -35,9 +35,33 @@ The five evaluated variants are:
 
 The generated outputs and metadata are stored under \path{backend/results/core_ablation}. Each sample stores the raw diffusion image, pre-composite image, final image, manifest file, and diagnostic arrays for total energy, flow loss, color loss, noise norm, and guidance norm.
 
+\section{Evaluation Metrics}
+
+The evaluation combines motion alignment, visual quality, preservation, and computational cost. Motion error and flow loss measure whether the generated edit follows the requested target motion. Background preservation error measures whether pixels outside the edited mask remain close to the source image. Object sharpness measures whether the moved object keeps high-frequency detail instead of becoming blurred. Boundary artifact score measures whether the object boundary introduces a visible seam after movement or compositing. Runtime and GPU memory report the practical cost of one edit. For repeated stochastic runs, results are summarized using the mean and standard deviation across seeds.
+
+\begin{table}[p]
+  \centering
+  \scriptsize
+  \caption{Evaluation metrics used to interpret generated motion-editing results.}
+  \label{tab:evaluation-metrics}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{p{1.25in}|p{3.05in}|p{0.75in}}
+    \hline
+    \textbf{Metric} & \textbf{Interpretation} & \textbf{Better} \\ \hline \hline
+    Motion error & Distance between the generated motion and the target motion inside the edited support. & Lower \\ \hline
+    Flow loss & Mean difference between RAFT-predicted flow and the desired target flow during diffusion guidance. & Lower \\ \hline
+    Background preservation error & Pixel change outside the edited mask compared with the source image. & Lower \\ \hline
+    Object sharpness score & High-frequency detail retained inside the moved object region, measured with a Laplacian-based score. & Higher \\ \hline
+    Boundary artifact score & Local discontinuity around the shifted object boundary or source-hole boundary. & Lower \\ \hline
+    Runtime & Wall-clock time required to produce one edited image. & Lower \\ \hline
+    GPU memory & Peak GPU memory required during generation, when available from the run logs. & Lower \\ \hline
+    Mean $\pm$ standard deviation & Average performance and variation over repeated images or random seeds. & Stable \\ \hline
+  \end{tabular}
+\end{table}
+
 \section{Quantitative Results}
 
-Table~\ref{tab:apple-ablation-metrics} summarizes the mean over three seeds. Lower values are better for flow loss, total energy, and background preservation error. Higher sharpness is generally preferable, but it must be interpreted with the visual result because compositing can produce a sharp object while also increasing boundary contrast.
+Table~\ref{tab:apple-ablation-metrics} summarizes the mean over three seeds. Lower values are better for flow loss, total energy, background preservation error, runtime, GPU memory, and boundary artifact scores. Higher sharpness is generally preferable, but it must be interpreted with the visual result because compositing can produce a sharp object while also increasing boundary contrast. GPU memory is included in the evaluation protocol, but it is only reported for runs where peak memory logging is available.
 
 \begin{table}[p]
   \centering

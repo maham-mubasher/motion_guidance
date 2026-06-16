@@ -74,40 +74,41 @@
 \contentsline {section}{\numberline {7.1}Evaluation Overview}{30}{}%
 \contentsline {section}{\numberline {7.2}Implemented ML Behavior}{30}{}%
 \contentsline {section}{\numberline {7.3}Apple Ablation Protocol}{31}{}%
-\contentsline {section}{\numberline {7.4}Quantitative Results}{31}{}%
-\contentsline {section}{\numberline {7.5}Diagnostic Trajectories}{32}{}%
-\contentsline {section}{\numberline {7.6}Visual Results}{32}{}%
-\contentsline {section}{\numberline {7.7}Answer to the RAFT Contribution Question}{32}{}%
-\contentsline {section}{\numberline {7.8}Additional Generated Cases}{36}{}%
-\contentsline {section}{\numberline {7.9}Compact Hyperparameter Study}{36}{}%
-\contentsline {section}{\numberline {7.10}Restoration Comparison}{39}{}%
-\contentsline {section}{\numberline {7.11}Status of Other Examples}{39}{}%
-\contentsline {section}{\numberline {7.12}Evaluation Summary}{42}{}%
-\contentsline {chapter}{\numberline {8} Component Analysis}{43}{}%
-\contentsline {section}{\numberline {8.1}Purpose of the Analysis}{43}{}%
-\contentsline {section}{\numberline {8.2}Ablation Variants}{43}{}%
-\contentsline {section}{\numberline {8.3}Contribution of Primitive Flow and Hard-Warp Initialization}{43}{}%
-\contentsline {section}{\numberline {8.4}Contribution of RAFT-Guided Diffusion}{44}{}%
-\contentsline {section}{\numberline {8.5}Contribution of Restoration and Compositing}{44}{}%
-\contentsline {section}{\numberline {8.6}Component Findings}{45}{}%
-\contentsline {chapter}{\numberline {9} Limitations, Ethics, and Future Work}{47}{}%
-\contentsline {section}{\numberline {9.1}Limitations}{47}{}%
-\contentsline {subsection}{\numberline {9.1.1}Limited Reliability for Non-Rigid Motion}{47}{}%
-\contentsline {subsection}{\numberline {9.1.2}Source-Hole Restoration}{47}{}%
-\contentsline {subsection}{\numberline {9.1.3}Dependence on Masks, Flows, and Cached Latents}{48}{}%
-\contentsline {subsection}{\numberline {9.1.4}Limited Quantitative Evaluation}{48}{}%
-\contentsline {subsection}{\numberline {9.1.5}Internal and External Validity}{48}{}%
-\contentsline {section}{\numberline {9.2}Ethical Considerations}{49}{}%
-\contentsline {section}{\numberline {9.3}Future Work}{49}{}%
-\contentsline {section}{\numberline {9.4}Summary}{50}{}%
-\contentsline {chapter}{\numberline {10} Conclusion}{51}{}%
-\contentsline {section}{\numberline {10.1}Conclusion}{51}{}%
-\contentsline {section}{\numberline {10.2}Summary of Contributions}{51}{}%
-\contentsline {section}{\numberline {10.3}Main Findings}{51}{}%
-\contentsline {section}{\numberline {10.4}Answer to the Research Question}{52}{}%
-\contentsline {section}{\numberline {10.5}Final Remarks}{53}{}%
-\contentsline {chapter}{References}{54}{}%
-\contentsline {chapter}{ \hskip 4em References}{54}{}%
-\contentsline {chapter}{Appendix A: Development and Weekly Progress Log}{56}{}%
-\contentsline {chapter}{Appendix B: Commands, Parameters, and Reproducibility}{60}{}%
-\contentsline {chapter}{Appendix C: Additional Result Images}{67}{}%
+\contentsline {section}{\numberline {7.4}Evaluation Metrics}{31}{}%
+\contentsline {section}{\numberline {7.5}Quantitative Results}{32}{}%
+\contentsline {section}{\numberline {7.6}Diagnostic Trajectories}{32}{}%
+\contentsline {section}{\numberline {7.7}Visual Results}{32}{}%
+\contentsline {section}{\numberline {7.8}Answer to the RAFT Contribution Question}{35}{}%
+\contentsline {section}{\numberline {7.9}Additional Generated Cases}{35}{}%
+\contentsline {section}{\numberline {7.10}Compact Hyperparameter Study}{39}{}%
+\contentsline {section}{\numberline {7.11}Restoration Comparison}{39}{}%
+\contentsline {section}{\numberline {7.12}Status of Other Examples}{42}{}%
+\contentsline {section}{\numberline {7.13}Evaluation Summary}{42}{}%
+\contentsline {chapter}{\numberline {8} Component Analysis}{44}{}%
+\contentsline {section}{\numberline {8.1}Purpose of the Analysis}{44}{}%
+\contentsline {section}{\numberline {8.2}Ablation Variants}{44}{}%
+\contentsline {section}{\numberline {8.3}Contribution of Primitive Flow and Hard-Warp Initialization}{44}{}%
+\contentsline {section}{\numberline {8.4}Contribution of RAFT-Guided Diffusion}{45}{}%
+\contentsline {section}{\numberline {8.5}Contribution of Restoration and Compositing}{45}{}%
+\contentsline {section}{\numberline {8.6}Component Findings}{46}{}%
+\contentsline {chapter}{\numberline {9} Limitations, Ethics, and Future Work}{48}{}%
+\contentsline {section}{\numberline {9.1}Limitations}{48}{}%
+\contentsline {subsection}{\numberline {9.1.1}Limited Reliability for Non-Rigid Motion}{48}{}%
+\contentsline {subsection}{\numberline {9.1.2}Source-Hole Restoration}{48}{}%
+\contentsline {subsection}{\numberline {9.1.3}Dependence on Masks, Flows, and Cached Latents}{49}{}%
+\contentsline {subsection}{\numberline {9.1.4}Limited Quantitative Evaluation}{49}{}%
+\contentsline {subsection}{\numberline {9.1.5}Internal and External Validity}{49}{}%
+\contentsline {section}{\numberline {9.2}Ethical Considerations}{50}{}%
+\contentsline {section}{\numberline {9.3}Future Work}{50}{}%
+\contentsline {section}{\numberline {9.4}Summary}{51}{}%
+\contentsline {chapter}{\numberline {10} Conclusion}{52}{}%
+\contentsline {section}{\numberline {10.1}Conclusion}{52}{}%
+\contentsline {section}{\numberline {10.2}Summary of Contributions}{52}{}%
+\contentsline {section}{\numberline {10.3}Main Findings}{52}{}%
+\contentsline {section}{\numberline {10.4}Answer to the Research Question}{53}{}%
+\contentsline {section}{\numberline {10.5}Final Remarks}{54}{}%
+\contentsline {chapter}{References}{55}{}%
+\contentsline {chapter}{ \hskip 4em References}{55}{}%
+\contentsline {chapter}{Appendix A: Development and Weekly Progress Log}{57}{}%
+\contentsline {chapter}{Appendix B: Commands, Parameters, and Reproducibility}{61}{}%
+\contentsline {chapter}{Appendix C: Additional Result Images}{68}{}%

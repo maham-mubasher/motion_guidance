@@ -5,14 +5,15 @@
 \contentsline {table}{\numberline {6.2}{\ignorespaces Pretrained ML components used by the editing pipeline.}}{25}{}%
 \contentsline {table}{\numberline {6.3}{\ignorespaces Final experimental configurations.}}{26}{}%
 \contentsline {table}{\numberline {6.4}{\ignorespaces Method variants evaluated in the thesis.}}{27}{}%
-\contentsline {table}{\numberline {7.1}{\ignorespaces Apple ablation results averaged over three seeds. The deterministic baseline has no diffusion loss trajectory because sampling is skipped.}}{33}{}%
-\contentsline {table}{\numberline {7.2}{\ignorespaces Additional generated cases averaged over three seeds. These results broaden the qualitative evidence but are not controlled component ablations.}}{37}{}%
-\contentsline {table}{\numberline {7.3}{\ignorespaces Compact apple hyperparameter study. Each row changes one setting around the reference configuration. Final compositing is disabled to isolate diffusion-stage behavior.}}{41}{}%
-\contentsline {table}{\numberline {7.4}{\ignorespaces Source-hole restoration comparison on the apple translation case. Lower source-hole color jump and preservation error are preferred, while visual inspection is required because smoothness alone can hide unrealistic texture.}}{41}{}%
-\contentsline {table}{\numberline {7.5}{\ignorespaces Summary of examples and evidence status.}}{42}{}%
-\contentsline {table}{\numberline {8.1}{\ignorespaces Controlled apple ablation variants.}}{46}{}%
-\contentsline {table}{\numberline {10.1}{\ignorespaces Weekly development summary.}}{57}{}%
-\contentsline {table}{\numberline {10.2}{\ignorespaces Implementation artifacts used in the thesis.}}{57}{}%
-\contentsline {table}{\numberline {10.3}{\ignorespaces Final status of project examples.}}{59}{}%
-\contentsline {table}{\numberline {10.4}{\ignorespaces Main reproducibility parameters.}}{66}{}%
-\contentsline {table}{\numberline {10.5}{\ignorespaces Status of additional qualitative examples.}}{69}{}%
+\contentsline {table}{\numberline {7.1}{\ignorespaces Evaluation metrics used to interpret generated motion-editing results.}}{33}{}%
+\contentsline {table}{\numberline {7.2}{\ignorespaces Apple ablation results averaged over three seeds. The deterministic baseline has no diffusion loss trajectory because sampling is skipped.}}{33}{}%
+\contentsline {table}{\numberline {7.3}{\ignorespaces Additional generated cases averaged over three seeds. These results broaden the qualitative evidence but are not controlled component ablations.}}{36}{}%
+\contentsline {table}{\numberline {7.4}{\ignorespaces Compact apple hyperparameter study. Each row changes one setting around the reference configuration. Final compositing is disabled to isolate diffusion-stage behavior.}}{41}{}%
+\contentsline {table}{\numberline {7.5}{\ignorespaces Source-hole restoration comparison on the apple translation case. Lower source-hole color jump and preservation error are preferred, while visual inspection is required because smoothness alone can hide unrealistic texture.}}{41}{}%
+\contentsline {table}{\numberline {7.6}{\ignorespaces Summary of examples and evidence status.}}{42}{}%
+\contentsline {table}{\numberline {8.1}{\ignorespaces Controlled apple ablation variants.}}{47}{}%
+\contentsline {table}{\numberline {10.1}{\ignorespaces Weekly development summary.}}{58}{}%
+\contentsline {table}{\numberline {10.2}{\ignorespaces Implementation artifacts used in the thesis.}}{58}{}%
+\contentsline {table}{\numberline {10.3}{\ignorespaces Final status of project examples.}}{60}{}%
+\contentsline {table}{\numberline {10.4}{\ignorespaces Main reproducibility parameters.}}{67}{}%
+\contentsline {table}{\numberline {10.5}{\ignorespaces Status of additional qualitative examples.}}{70}{}%
