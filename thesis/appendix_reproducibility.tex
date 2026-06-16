@@ -1,0 +1,241 @@
+\setlength{\footskip}{8mm}
+\addcontentsline{toc}{chapter}{Appendix B: Commands, Parameters, and Reproducibility}
+
+\begin{center}
+{\large \bf Appendix B\\ \vskip 1em Commands, Parameters, and Reproducibility\\ \vskip 1em}
+\end{center}
+
+This appendix lists the practical information needed to reproduce the main experiments. The commands are based on the submitted repository structure and the project command file. Some external assets, such as pretrained model checkpoints and the original Motion Guidance data archive, must be downloaded separately.
+
+\section*{B.1 Environment}
+
+The backend follows the Motion Guidance environment with additional dependencies for the API and restoration stage. The original environment file specifies Python 3.8.5, PyTorch 1.11.0, torchvision 0.12.0, CUDA toolkit 11.3, and the original Motion Guidance dependencies. The updated requirement files also include FastAPI, Uvicorn, Python multipart support, OpenCV, and optional LaMa restoration through \texttt{simple-lama-inpainting}.
+
+The basic setup is:
+
+\begin{verbatim}
+cd motion_guidance_repo/backend
+conda env create -f environment.yml
+conda activate motion_guidance
+\end{verbatim}
+
+If the updated pip requirements are used, install them inside the activated environment:
+
+\begin{verbatim}
+pip install -r requirements.txt
+\end{verbatim}
+
+The original Motion Guidance setup also requires the RAFT checkpoint and the Stable Diffusion v1.4 checkpoint. The data folder must contain the input image, masks, flows, inversion latent, and cached latents for each runnable example.
+
+\section*{B.2 Required Repository Structure}
+
+For a runnable example, the following files are expected:
+
+\begin{verbatim}
+backend/data/<example>/pred.png
+backend/data/<example>/start_zt.pth
+backend/data/<example>/flows/<target_flow>.pth
+backend/data/<example>/flows/<mask>.pth
+backend/data/<example>/latents/
+\end{verbatim}
+
+The exact cached-latent structure depends on the original Motion Guidance data package. If cached latents are not available, the run configuration must be changed accordingly, for example by disabling \texttt{--use\_cached\_latents} and using the available initialization options.
+
+\section*{B.3 Backend API}
+
+The backend API can be started from the backend directory:
+
+\begin{verbatim}
+cd motion_guidance_repo/backend
+conda activate motion_guidance
+uvicorn mg_api.main:app --host 0.0.0.0 --port 8000
+\end{verbatim}
+
+The API exposes the project presets and generation endpoint used by the frontend. During development, an existing server process was stopped before restarting Uvicorn.
+
+\section*{B.4 Frontend}
+
+The frontend is implemented with Next.js. It is located in:
+
+\begin{verbatim}
+motion_guidance_repo/frontend
+\end{verbatim}
+
+The frontend provides example presets, input preview, before-after display, primitive controls, and backend job interaction. It should be run while the backend API is available on port 8000.
+
+\section*{B.5 Main Example Parameters}
+
+\begin{table}[p]
+  \centering
+  \scriptsize
+  \caption{Main reproducibility parameters.}
+  \label{tab:appendix-repro-params}
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{p{0.75in}|p{1.05in}|p{1.0in}|p{1.0in}|p{1.45in}}
+    \hline
+    \textbf{Example} & \textbf{Prompt} & \textbf{Input Dir.} & \textbf{Mode} & \textbf{Key Parameters} \\ \hline \hline
+    Apple & an apple on a wooden table & \texttt{./data/apple} & primitive translate & $d_x=150$, $d_y=0$, outer weight $0.15$ \\ \hline
+    Teapot & a teapot floating in water & \texttt{./data/teapot} & primitive translate & $d_x=0$, $d_y=150$, outer weight $0.15$ \\ \hline
+    Lion & a photo of a lion & \texttt{./data/lion} & primitive translate & $d_x=-100$, $d_y=0$, outer weight $0.15$ \\ \hline
+    Tree & a painting of a lone tree & \texttt{./data/tree} & primitive stretch or file flow & stretch support; less stable than translation \\ \hline
+    Woman & a portrait photo of a woman & \texttt{./data/woman} & presentation asset mode & excluded from evaluation \\ \hline
+    Topiary & a photo of topiary & \texttt{./data/topiary} & presentation asset mode & excluded from evaluation \\ \hline
+  \end{tabular}
+\end{table}
+
+The documented default apple-ablation values were:
+
+\begin{verbatim}
+ddim_steps = 120
+scale = 7.5
+guidance_weight = 30
+clip_grad = 60
+num_recursive_steps = 1
+raft_iters = 1
+precision = fp32
+selective_inner_weight = 1.0
+selective_outer_weight = 0.15
+\end{verbatim}
+
+\section*{B.6 Core Apple Ablation Commands}
+
+The final apple ablation commands are generated from the backend directory:
+
+\begin{verbatim}
+cd motion_guidance_repo/backend
+conda activate motion_guidance
+
+python experiments/run_core_ablation.py \
+  --results-root results/core_ablation \
+  --seed 0 \
+  --ddim-steps 120 \
+  --raft-iters 1
+
+python experiments/run_core_ablation.py \
+  --results-root results/core_ablation \
+  --seed 1 \
+  --ddim-steps 120 \
+  --raft-iters 1
+
+python experiments/run_core_ablation.py \
+  --results-root results/core_ablation \
+  --seed 2 \
+  --ddim-steps 120 \
+  --raft-iters 1
+\end{verbatim}
+
+Each generated command should be run from the backend directory. After all 15 runs complete, metrics and diagnostic plots are regenerated with:
+
+\begin{verbatim}
+python experiments/compute_metrics.py \
+  --results-root results/core_ablation \
+  --csv results/core_ablation/metrics.csv \
+  --json results/core_ablation/metrics.json
+
+python experiments/plot_diagnostics.py \
+  --results-root results/core_ablation \
+  --output-dir results/core_ablation/diagnostic_plots
+\end{verbatim}
+
+The final CSV file used in Chapter~\ref{ch:results} is:
+
+\begin{verbatim}
+backend/results/core_ablation/metrics.csv
+\end{verbatim}
+
+\section*{B.7 Direct Backend Command}
+
+The teapot command below is the clearest direct backend run for the final pipeline:
+
+\begin{verbatim}
+python generate.py \
+  --prompt "a teapot floating in water" \
+  --input_dir ./data/teapot \
+  --edit_mask_path down150.mask.pth \
+  --target_flow_mode primitive \
+  --target_flow_name down150.pth \
+  --primitive_kind translate \
+  --primitive_dx 0 \
+  --primitive_dy 150 \
+  --use_hard_warp_init \
+  --use_selective_refinement \
+  --selective_inner_weight 1.0 \
+  --selective_outer_weight 0.15 \
+  --use_cached_latents \
+  --log_freq 5 \
+  --ddim_steps 120 \
+  --scale 7.5 \
+  --num_recursive_steps 1 \
+  --guidance_weight 30 \
+  --clip_grad 60 \
+  --raft_iters 1 \
+  --precision fp32 \
+  --disable_dataparallel \
+  --save_dir ./results/teapot.down150.lama
+\end{verbatim}
+
+The same command structure can be adapted for apple by changing the prompt, input directory, mask name, flow name, translation values, and save directory.
+
+\section*{B.8 App Presets}
+
+The following preset values were used in the frontend:
+
+\begin{verbatim}
+Apple:
+  prompt: an apple on a wooden table
+  input_dir: ./data/apple
+  mask: right.mask.pth
+  target_flow: right.pth
+  primitive: translate
+  dx: 150
+  dy: 0
+
+Teapot:
+  prompt: a teapot floating in water
+  input_dir: ./data/teapot
+  mask: down150.mask.pth
+  target_flow: down150.pth
+  primitive: translate
+  dx: 0
+  dy: 150
+
+Woman:
+  prompt: a portrait photo of a woman
+  input_dir: ./data/woman
+  mask: growHair.mask.pth
+  target_flow: growHair.pth
+  mode: precomputed flow
+
+Topiary:
+  prompt: a photo of topiary
+  input_dir: ./data/topiary
+  mask: mask.pth
+  target_flow: flow.pth
+  mode: precomputed flow
+\end{verbatim}
+
+\section*{B.9 Cat Example Status}
+
+The cat example is not included as a completed runnable experiment. The repository contains:
+
+\begin{verbatim}
+backend/assets/cat.png
+\end{verbatim}
+
+This file is a presentation asset, not a complete Motion Guidance input folder. A runnable cat experiment would require:
+
+\begin{verbatim}
+backend/data/cat/pred.png
+backend/data/cat/start_zt.pth
+backend/data/cat/flows/right150.mask.pth
+backend/data/cat/flows/right150.pth
+backend/data/cat/latents/
+\end{verbatim}
+
+Until those files exist, cat should be reported only as unavailable, not as an evaluated result.
+
+\section*{B.10 Reproducibility Notes}
+
+Reproducibility depends on four conditions. First, the same model checkpoints and example data must be available. Second, the mask and target flow must match the example configuration. Third, the same sampling parameters should be used. Fourth, the same restoration option should be enabled when comparing final outputs.
+
+The thesis therefore treats the apple ablation as its directly inspectable case study. Teapot is a reproducible configuration when all model and data dependencies are available, but its output is not included in the final metric table. Woman, topiary, and cat are excluded from evaluation for the reasons stated above.

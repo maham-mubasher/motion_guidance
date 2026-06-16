@@ -1,0 +1,77 @@
+\newpage
+\pagestyle{plain}
+\pagenumbering{roman}
+\setcounter{page}{1}
+\addcontentsline{toc}{section}{Title Page}
+\setlength{\textheight}{230mm}
+\setlength{\voffset}{10mm}
+
+\begin{center}
+{\singlespace \uppercase{\bf Controllable Motion-Guided Image Editing Using Diffusion Models, Motion Primitives, and Restoration-Aware Compositing} \par}
+\vskip 2em
+{\singlespace by\\ \vskip 1em Maham Mubasher \par}
+\vskip 3em
+{\singlespace Supervisor\\ \vskip 1em Dr. Ali Ahmed \par}
+\vskip 4em
+{\singlespace
+A thesis submitted in partial fulfillment of the requirements for the degree of Master of Science in Data Science.
+\par}
+\vfill
+{\singlespace Information Technology University (ITU)\\ Department of Science and Technology\\ 2026}
+\end{center}
+
+\newpage
+\pagestyle{plain}
+\addcontentsline{toc}{section}{Acknowledgments}
+\onecolumn
+\if@twoside\else\raggedbottom\fi
+\setlength{\footskip}{8mm}
+\begin{center}
+{\large \bf Acknowledgments\\ \vskip 1em}
+\vskip 1em
+\end{center}
+\singlespace
+\doublespace
+
+I would like to express my sincere gratitude to my supervisor, Dr. Ali Ahmed, for his guidance, constructive feedback, and continuous support throughout the course of this thesis. His supervision helped me refine the research direction, strengthen the technical implementation, and present the work with clarity and academic rigor.
+
+I am also grateful to the Department of Science and Technology at Information Technology University (ITU) for providing the academic environment and resources necessary to complete this research. I would like to acknowledge the broader research community whose contributions in diffusion models, optical flow, and motion-guided image editing provided the foundation for this work.
+
+Finally, I extend my appreciation to my family, friends, and colleagues for their encouragement, patience, and support during the development and documentation of this thesis.
+
+\newpage
+\addcontentsline{toc}{section}{Table of Contents}
+\tableofcontents
+
+\newpage
+\addcontentsline{toc}{section}{List of Figures}
+\listoffigures
+
+\newpage
+\addcontentsline{toc}{section}{List of Tables}
+\listoftables
+
+\setlength{\parskip}{12pt}
+
+\newpage
+\pagestyle{plain}
+\addcontentsline{toc}{section}{Abstract}
+\onecolumn
+\if@twoside\else\raggedbottom\fi
+\setlength{\footskip}{8mm}
+\begin{center}
+{\large \bf Abstract \\ \vskip 1em}
+\vskip 1em
+\end{center}
+\singlespace
+\doublespace
+
+This thesis investigates inference-time control of a pretrained latent diffusion model for single-image motion editing. The ML stack consists of Stable Diffusion v1.4, its AutoencoderKL image representation, a frozen CLIP text encoder, a conditional U-Net denoiser, and pretrained RAFT optical-flow estimation. Rather than training new weights, the method differentiates a motion-and-appearance energy through RAFT and the VAE decoder to modify the DDIM latent trajectory.
+
+Translation, scale, stretch, and rotation parameters are converted into dense target flows that supervise the RAFT-based loss. At each denoising step, classifier-free text guidance predicts noise, the estimated clean latent is decoded, RAFT predicts source-to-output motion, and the flow and color losses are back-propagated to the latent. The implementation also uses mask-dependent gradient weights, gradient clipping, a guidance schedule, and RePaint-style latent replacement outside the edit region.
+
+The evaluation reports a focused apple ablation with five method variants and three random seeds. The results show that RAFT-guided diffusion reduces final flow loss from 8.46 to 5.80 and reduces the best recorded flow loss from 8.16 to 3.07 compared with a no-RAFT diffusion variant. This provides measurable evidence that RAFT contributes to the pre-composite diffusion trajectory. However, the visually strongest final apple result is produced after deterministic restoration and source-object compositing, so the final image should be interpreted as a hybrid rendering result rather than an isolated diffusion output.
+
+For large rigid translation, the system additionally encodes a geometrically initialized image into the diffusion latent space. Restoration and compositing address disoccluded background after sampling; for contained translations, the final saved image is therefore a hybrid result rather than a pure diffusion output. The contribution is an implemented and auditable inference-time ML pipeline with a limited but reproducible case-study ablation. Broader quantitative evaluation across additional objects, backgrounds, motion magnitudes, masks, and hyperparameters remains future work.
+
+\setlength{\parskip}{0pt}

@@ -1,0 +1,22 @@
+{
+  "diagnostics": {
+    "color_loss": "results/extra_cases/teapot_full_pipeline_seed0/sample_000/losses_color.npy",
+    "flow_loss": "results/extra_cases/teapot_full_pipeline_seed0/sample_000/losses_flow.npy",
+    "guidance_norm": "results/extra_cases/teapot_full_pipeline_seed0/sample_000/guidance_norms.npy",
+    "noise_norm": "results/extra_cases/teapot_full_pipeline_seed0/sample_000/noise_norms.npy",
+    "total_loss": "results/extra_cases/teapot_full_pipeline_seed0/sample_000/losses.npy"
+  },
+  "final_composite_applied": true,
+  "final_output_source": "final_composite",
+  "outputs": {
+    "final": "results/extra_cases/teapot_full_pipeline_seed0/sample_000/pred.png",
+    "pre_composite": "results/extra_cases/teapot_full_pipeline_seed0/sample_000/pred_pre_composite.png",
+    "raw_diffusion_or_deterministic": "results/extra_cases/teapot_full_pipeline_seed0/sample_000/pred_diffusion.png",
+    "start_zt": "results/extra_cases/teapot_full_pipeline_seed0/sample_000/start_zt.pth"
+  },
+  "reference_output_applied": false,
+  "runtime_seconds": 169.1870710849762,
+  "sample_index": 0,
+  "seed": 0,
+  "skipped_diffusion": false
+}

@@ -1,0 +1,256 @@
+\setlength{\footskip}{8mm}
+
+\chapter{Proposed Method}
+\label{ch:methodology}
+
+\section{Overview of the Proposed Pipeline}
+
+The proposed method extends Motion Guidance as an inference-time ML pipeline. Instead of training or fine-tuning model weights, it controls the latent variable of pretrained Stable Diffusion v1.4. A geometric primitive defines target motion, pretrained RAFT evaluates motion consistency on each decoded prediction, and gradients are propagated through RAFT and the VAE decoder to alter DDIM denoising. Geometric initialization and restoration address failure modes that are difficult for the learned guidance alone.
+
+Given a source image $x_0 \in [0,1]^{H \times W \times 3}$, text condition $c$, object support mask $M$, and target flow $F \in \mathbb{R}^{H \times W \times 2}$, the external guidance energy is:
+
+\begin{equation}
+E(x) = \lambda_f L_{\mathrm{flow}}(x, x_0, F) + \lambda_c L_{\mathrm{color}}(x, x_0),
+\label{eq:proposed-energy}
+\end{equation}
+
+where $L_{\mathrm{flow}}$ enforces motion consistency and $L_{\mathrm{color}}$ encourages source appearance preservation. The text-conditioned diffusion model supplies the image prior through its denoising prediction; it is not an additional term returned by the implemented guidance-energy function. The gradient of Equation~\ref{eq:proposed-energy} is applied during sampling.
+
+\section{Machine-Learning Model Stack}
+
+The method composes four pretrained neural components. First, the AutoencoderKL maps an image $x$ to a four-channel latent $z=0.18215E_{\mathrm{VAE}}(x)$ and decodes latent predictions to RGB. Second, a frozen CLIP ViT-L/14 encoder maps the text prompt to conditioning vector $c$. Third, the Stable Diffusion U-Net $\epsilon_\phi(z_t,t,c)$ predicts noise under cross-attention conditioning. Fourth, RAFT $\Phi(x_0,x)$ predicts dense optical flow between the source and current decoded image.
+
+All model parameters are held fixed. The variable updated during generation is $z_t$. The computational path for ML guidance is
+
+\begin{equation}
+z_t \rightarrow \hat{z}_0 \rightarrow D_{\mathrm{VAE}}(\hat{z}_0)
+\rightarrow \Phi(x_0,\hat{x}_0) \rightarrow E(\hat{x}_0),
+\label{eq:ml-computational-path}
+\end{equation}
+
+followed by automatic differentiation from $E$ back to $z_t$. This allows a pretrained discriminative model, RAFT, to supervise a pretrained generative model during inference.
+
+\section{Differentiable RAFT Guidance Energy}
+
+For the decoded estimate $\hat{x}_0$, RAFT predicts
+
+\begin{equation}
+\hat{F}_t=\Phi(x_0,\hat{x}_0).
+\end{equation}
+
+The implemented motion loss is
+
+\begin{equation}
+L_{\mathrm{flow}}=\operatorname{MAE}(\hat{F}_t,F).
+\label{eq:implemented-flow-loss}
+\end{equation}
+
+To preserve appearance, the prediction is backward-warped and compared with the source:
+
+\begin{equation}
+L_{\mathrm{color}}=\operatorname{MAE}\left(x_0,W(\hat{x}_0,F_{\mathrm{warp}})\right).
+\label{eq:implemented-color-loss}
+\end{equation}
+
+For primitive mode, the implementation enables oracle warping, so $F_{\mathrm{warp}}=F$; otherwise the RAFT prediction is used. An optional occlusion mask suppresses comparisons in disoccluded regions. This energy supplies supervision without requiring ground-truth edited images.
+
+\section{Motion Primitive Parameterization}
+
+The first contribution is to generate target motion fields from explicit primitives. Let $p=(x,y)^\top$ denote a pixel coordinate and let $T_\theta:\mathbb{R}^2 \rightarrow \mathbb{R}^2$ be a geometric transformation with parameters $\theta$. The induced flow is:
+
+\begin{equation}
+F_\theta(p)=T_\theta(p)-p.
+\label{eq:primitive-flow}
+\end{equation}
+
+The flow is restricted to the object support:
+
+\begin{equation}
+F(p)=
+\begin{cases}
+F_\theta(p), & p \in M,\\
+(0,0)^\top, & p \notin M.
+\end{cases}
+\label{eq:masked-flow}
+\end{equation}
+
+For translation with horizontal and vertical displacement $(d_x,d_y)$:
+
+\begin{equation}
+T_{\mathrm{trans}}(p)=p+
+\begin{bmatrix}
+d_x\\
+d_y
+\end{bmatrix},
+\qquad
+F_{\mathrm{trans}}(p)=
+\begin{bmatrix}
+d_x\\
+d_y
+\end{bmatrix}.
+\label{eq:translation}
+\end{equation}
+
+For scaling around object center $c_m=(c_x,c_y)^\top$:
+
+\begin{equation}
+T_{\mathrm{scale}}(p)=c_m+
+\begin{bmatrix}
+s_x & 0\\
+0 & s_y
+\end{bmatrix}
+(p-c_m),
+\label{eq:scale}
+\end{equation}
+
+where $s_x$ and $s_y$ are horizontal and vertical scale factors. Stretching is implemented as anisotropic scaling, using different values for $s_x$ and $s_y$.
+
+For rotation by angle $\alpha$:
+
+\begin{equation}
+T_{\mathrm{rot}}(p)=c_m+
+\begin{bmatrix}
+\cos\alpha & -\sin\alpha\\
+\sin\alpha & \cos\alpha
+\end{bmatrix}
+(p-c_m).
+\label{eq:rotation}
+\end{equation}
+
+These primitives provide direct user control while still producing a dense flow field compatible with the original Motion Guidance loss.
+
+\section{Selective Refinement}
+
+The second component is spatial guidance weighting, called selective refinement in the implementation. The baseline gradient is global, so the proposed system multiplies it by different weights inside and outside the editable region. This is a simple weighting rule rather than a learned refinement model.
+
+Let $g_t=\nabla_{z_t}E(\hat{x}_0)$ be the guidance gradient at diffusion step $t$, and let $M_z$ be the edit mask resized to latent resolution. A spatial weight map is defined as:
+
+\begin{equation}
+w(p)=
+\begin{cases}
+w_{\mathrm{in}}, & p \in M_z,\\
+w_{\mathrm{out}}, & p \notin M_z.
+\end{cases}
+\label{eq:selective-weight}
+\end{equation}
+
+The refined gradient is:
+
+\begin{equation}
+\tilde{g}_t(p)=w(p)g_t(p).
+\label{eq:selective-gradient}
+\end{equation}
+
+In the reported configuration, $w_{\mathrm{in}}$ is larger than $w_{\mathrm{out}}$. This localizes the applied gradient by construction. The available evidence does not isolate its effect quantitatively, so source-preservation improvement is treated as a design intention rather than a measured result.
+
+\section{Hard Warp Initialization}
+
+Primitive flow used only as a soft guidance signal was not sufficient for reliable object movement. To address this, the proposed method adds hard warp initialization. The source image is first geometrically moved according to the target flow before diffusion refinement begins:
+
+\begin{equation}
+x_{\mathrm{warp}}(p)=x_0(p-F(p)).
+\label{eq:hard-warp}
+\end{equation}
+
+The warped image is then encoded into the latent space:
+
+\begin{equation}
+z_{\mathrm{init}}=\gamma E_{\mathrm{VAE}}(x_{\mathrm{warp}}),
+\label{eq:latent-init}
+\end{equation}
+
+where $E_{\mathrm{VAE}}$ is the encoder of the latent diffusion model and $\gamma$ is the latent scaling factor used by the model. This gives the diffusion sampler a stronger initial condition because the object is already placed near the desired location before denoising refinement.
+
+\section{Guided DDIM Update}
+
+During sampling, classifier-free guidance first computes a text-guided noise estimate:
+
+\begin{equation}
+\epsilon_{\mathrm{cfg}}=
+\epsilon_\phi(z_t,t,\emptyset)+
+s\left(\epsilon_\phi(z_t,t,c)-\epsilon_\phi(z_t,t,\emptyset)\right),
+\label{eq:cfg}
+\end{equation}
+
+where $s$ is the classifier-free guidance scale. A clean-image estimate is computed from the current latent:
+
+\begin{equation}
+\hat{x}_0 = D_{\mathrm{VAE}}
+\left(
+\frac{z_t-\sqrt{1-\alpha_t}\epsilon_{\mathrm{cfg}}}{\sqrt{\alpha_t}}
+\right).
+\label{eq:x0-estimate}
+\end{equation}
+
+The motion-guidance gradient is then computed as:
+
+\begin{equation}
+g_t = \nabla_{z_t}E(\hat{x}_0).
+\label{eq:guidance-grad}
+\end{equation}
+
+After selective refinement and gradient clipping, the noise estimate is corrected:
+
+\begin{equation}
+\epsilon_t' = \epsilon_{\mathrm{cfg}}-\sqrt{1-\alpha_t}\,\eta_t \tilde{g}_t,
+\label{eq:noise-correction}
+\end{equation}
+
+where $\eta_t$ represents the guidance weight and schedule at timestep $t$. The corrected noise estimate is then used in the DDIM update. This keeps the diffusion prior active while steering the edit toward the desired motion.
+
+The default implementation applies guidance during the first $80\%$ of DDIM steps and sets it to zero for the final $20\%$. This allows late denoising steps to consolidate image detail without continued motion pressure. The gradient norm is clipped when it exceeds the configured threshold, limiting unstable latent updates caused by large RAFT or reconstruction gradients.
+
+\section{Latent Preservation Outside the Edit Region}
+
+The sampler preserves non-edited regions through latent replacement. At timestep $t$, positions outside the editable support are replaced with either cached inversion latents or a forward-noised source latent:
+
+\begin{equation}
+z_t(p) \leftarrow z_t^{\mathrm{source}}(p), \qquad p\notin M_z.
+\label{eq:latent-replacement}
+\end{equation}
+
+This operation is related to RePaint-style conditioning: the diffusion model remains free to update the editable region while source-consistent latent values are reintroduced elsewhere. If cached latents do not match the active DDIM step count, the implementation reindexes them; if too few are available, it falls back to forward-process source latents.
+
+\section{Inference Diagnostics}
+
+The sampler stores five trajectories for each run: total guidance energy, RAFT flow loss, color-preservation loss, U-Net noise norm, and guidance-gradient norm. It can also save intermediate decoded reconstructions and RAFT flow visualizations. These artifacts expose the behavior of the ML optimization and provide a basis for future convergence analysis, even though the current thesis package does not contain a complete controlled metric study.
+
+\section{Background Restoration and Sharp Compositing}
+
+When an object is translated, the original object location becomes a source-hole region. Let $S$ be the source object support and $S'$ be the shifted support. The source-hole mask is:
+
+\begin{equation}
+H = S(1-S').
+\label{eq:source-hole}
+\end{equation}
+
+The background is restored using an inpainting or patch-based operator:
+
+\begin{equation}
+B = \mathcal{I}(x_0,H),
+\label{eq:background-restore}
+\end{equation}
+
+where $\mathcal{I}$ denotes the selected restoration method. In practice, the implementation supports local filling, patch-based restoration, OpenCV inpainting, and LaMa-based restoration.
+
+The shifted object is:
+
+\begin{equation}
+O'(p)=S'(p)x_0(p-F(p)).
+\label{eq:shifted-object}
+\end{equation}
+
+For contained rigid translations, the final saved image is:
+
+\begin{equation}
+x_{\mathrm{final}}(p)=A(p)O'(p)+(1-A(p))B(p),
+\label{eq:final-composite}
+\end{equation}
+
+where $A$ is a softened alpha mask derived from the shifted support. In the current implementation this compositing operation replaces the decoded diffusion sample for contained translated objects. It preserves source-object texture, but it also means that the final apple-style result cannot be attributed solely to diffusion refinement.
+
+\section{Non-Evaluated Reference-Output Mode}
+
+The application contains an option that loads shipped output assets for selected presets. Because this path substitutes an existing image for the generated sample, it is not an algorithmic stabilization method and is excluded from evaluation. It is retained only as a user-interface demonstration feature. Non-rigid presets that depend on this option do not support claims about the proposed editing method.
+
+\FloatBarrier

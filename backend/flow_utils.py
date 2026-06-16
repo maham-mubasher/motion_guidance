@@ -33,7 +33,7 @@ class RAFT(nn.Module):
         args.dropout = dropout
 
         flowNet = nn.DataParallel(raft.RAFT(args))
-        flowNet.load_state_dict(torch.load(args.model, map_location='cpu'))
+        flowNet.load_state_dict(torch.load(args.model, map_location='cpu', weights_only=True))
         self.flowNet = flowNet.module.cpu()
 
         self.num_iters = num_iters
@@ -64,7 +64,7 @@ def normalize_flow(flow):
     device = flow.device
 
     # Get base pixel coordinates (just "gaussian integers")
-    base = torch.meshgrid(torch.arange(h), torch.arange(w))[::-1]
+    base = torch.meshgrid(torch.arange(h), torch.arange(w), indexing="ij")[::-1]
     base = torch.stack(base).float().to(device)
 
     # Convert to absolute coordinates

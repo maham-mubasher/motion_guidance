@@ -1,0 +1,113 @@
+\setlength{\footskip}{8mm}
+
+\chapter{Component Analysis}
+\label{ch:ablation}
+
+\section{Purpose of the Analysis}
+
+This chapter interprets the controlled apple ablation introduced in Chapter~\ref{ch:results}. The goal is not to prove broad generalization; the goal is to isolate what the implemented components contribute in the one complete, reproducible case study available in the thesis package.
+
+The final editing pipeline can be written as
+\begin{equation}
+  \hat{x} =
+  \mathcal{C}
+  \left(
+  \mathcal{R}
+  \left(
+  \mathcal{D}_{\phi}
+  \left(
+  \mathcal{W}(x_0, F_\theta), F_\theta, M
+  \right)
+  \right)
+  \right),
+\end{equation}
+where $x_0$ is the input image, $F_\theta$ is the primitive target flow, $M$ is the edit mask, $\mathcal{W}$ is geometric initialization, $\mathcal{D}_{\phi}$ is the motion-guided diffusion sampler, $\mathcal{R}$ is restoration, and $\mathcal{C}$ is final compositing. For contained translation, $\mathcal{C}$ can replace the decoded diffusion output in the saved final image.
+
+\section{Ablation Variants}
+
+The ablation compares five variants over three seeds. Table~\ref{tab:ablation-components} summarizes their purpose. The important design choice is that the no-RAFT and RAFT variants both use the same primitive hard-warp initialization and both disable final compositing. This makes them the fairest pair for measuring the contribution of RAFT-guided diffusion.
+
+\begin{table}[p]
+  \centering
+  \caption{Controlled apple ablation variants.}
+  \label{tab:ablation-components}
+  \small
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{p{1.25in}|p{1.15in}|p{1.2in}|p{1.8in}}
+    \hline
+    \textbf{Variant} & \textbf{Diffusion} & \textbf{Final composite} & \textbf{Question answered} \\ \hline \hline
+    Warp-inpaint-only & No & Yes & How strong is the deterministic movement and compositing baseline? \\ \hline
+    Original Motion Guidance & Yes & No & How does the file-flow baseline behave on the apple setup? \\ \hline
+    Diffusion, no RAFT & Yes & No & What happens when hard-warp initialization is used without RAFT guidance? \\ \hline
+    Diffusion + RAFT & Yes & No & Does RAFT guidance improve the pre-composite diffusion trajectory? \\ \hline
+    Full pipeline & Yes & Yes & What does the complete user-facing method produce? \\ \hline
+  \end{tabular}
+\end{table}
+
+\section{Contribution of Primitive Flow and Hard-Warp Initialization}
+
+Primitive flow changes the interface from file-based target motion to parameterized motion. For translation, the target flow is
+\begin{equation}
+  F_\theta(p) = (\Delta x, \Delta y),
+\end{equation}
+for pixels $p$ inside the editable support. In the apple experiment, $\Delta x=150$ and $\Delta y=0$.
+
+Hard-warp initialization then makes the large displacement explicit:
+\begin{equation}
+  x_{\mathrm{warp}}(p + F_\theta(p)) = x_0(p),
+  \qquad p \in M.
+\end{equation}
+This is why the deterministic warp-inpaint-only variant already produces a visually coherent moved apple. This result is useful, but it also creates an important interpretive boundary: the fact that the final apple moves does not by itself prove that diffusion learned or inferred the displacement.
+
+\section{Contribution of RAFT-Guided Diffusion}
+
+The clearest evidence for RAFT is the comparison between \emph{diffusion without RAFT} and \emph{diffusion with RAFT}. Both variants use primitive hard-warp initialization, source preservation, the same prompt, the same DDIM step count, and the same seeds. The difference is the motion-guidance weight.
+
+Across three seeds, adding RAFT guidance reduced final flow loss from 8.46 to 5.80 and reduced the best recorded flow loss from 8.16 to 3.07. It also reduced total guidance energy from 30.57 to 21.86 and improved background preservation error from 0.0136 to 0.0080.
+
+This establishes a measured contribution:
+\begin{equation}
+  \Delta L_{\mathrm{flow,last}}
+  = 8.46 - 5.80 = 2.66,
+\end{equation}
+which corresponds to approximately 31 percent lower final flow loss. For the best flow loss observed during sampling,
+\begin{equation}
+  \Delta L_{\mathrm{flow,min}}
+  = 8.16 - 3.07 = 5.09,
+\end{equation}
+which corresponds to approximately 62 percent lower best flow loss.
+
+Therefore RAFT guidance contributes to the diffusion trajectory. The saved diagnostic plots show this as a lower flow-loss and total-energy curve for RAFT-guided variants. However, the pre-composite images remain visually imperfect, so the contribution is best described as improved motion alignment rather than complete final rendering.
+
+\section{Contribution of Restoration and Compositing}
+
+After an object is translated, the source location becomes exposed:
+\begin{equation}
+  H = M \setminus T_\theta(M),
+\end{equation}
+where $H$ is the source-hole region and $T_\theta(M)$ is the transformed support. Restoration targets this region, while compositing preserves source-object texture at the target location.
+
+The final full-pipeline image is visually stable across three seeds, but its final output source is recorded as \emph{final composite}. The deterministic warp-inpaint-only variant also reaches a very low final preservation error of 0.0008 and a sharp object, despite skipping diffusion entirely. This shows that final appearance is strongly influenced by deterministic movement, restoration, and compositing.
+
+This does not invalidate the RAFT result. It clarifies the role separation:
+
+\begin{itemize}
+  \item RAFT-guided diffusion improves the measured pre-composite motion objective.
+  \item Restoration and compositing produce the cleanest final contained-translation image.
+\end{itemize}
+
+\section{Component Findings}
+
+The ablation supports the following component-level findings:
+
+\begin{enumerate}
+  \item Primitive flow improves controllability by replacing dense manual flow specification with explicit motion parameters.
+  \item Hard-warp initialization enforces large rigid translation before diffusion begins.
+  \item RAFT guidance measurably lowers flow loss and total guidance energy during diffusion.
+  \item Restoration and compositing dominate the visual quality of the final contained apple output.
+  \item The complete pipeline is a hybrid renderer, not a pure diffusion-only method.
+\end{enumerate}
+
+The strongest defensible answer to the ablation question is therefore not that RAFT alone produces the final apple. The stronger and more honest conclusion is that RAFT contributes measurable pre-composite alignment, while deterministic compositing is required for the final visually convincing rigid-translation result.
+
+\FloatBarrier

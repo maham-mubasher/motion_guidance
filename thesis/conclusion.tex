@@ -1,0 +1,46 @@
+\setlength{\footskip}{8mm}
+
+\chapter{Conclusion}
+\label{ch:conclusion}
+
+\section{Conclusion}
+
+This thesis developed an inference-time ML extension of Motion Guidance for single-image editing. The implementation couples Stable Diffusion v1.4, AutoencoderKL, frozen CLIP text conditioning, a conditional U-Net, and pretrained RAFT optical flow. It adds primitive-generated supervision, spatial gradient weighting, latent preservation, geometric initialization, and restoration around this learned model stack.
+
+The central research question was how Motion Guidance can expose more direct control without training a new diffusion model. The implemented answer is a staged pipeline: user parameters are converted into target flows, geometric initialization enforces displacement, diffusion guidance remains available during sampling, and restoration plus compositing render the contained rigid-translation result.
+
+\section{Summary of Contributions}
+
+The thesis makes five ML-oriented implementation contributions. First, it converts translation, scale, stretch, and rotation into dense target labels for RAFT guidance. Second, it differentiates flow and color losses through RAFT and the VAE decoder to the DDIM latent. Third, it adds mask-dependent gradient weighting, clipping, scheduling, and source-latent replacement. Fourth, it encodes geometrically initialized images as alternative starting states for diffusion inference. Fifth, it records per-step loss and norm diagnostics for analysis of the guided sampler.
+
+These are inference-time ML contributions rather than model-training contributions. The thesis does not introduce new network weights; it shows how pretrained generative and discriminative models can be composed, differentiated, and controlled for object-level editing.
+
+\section{Main Findings}
+
+Development records indicate that primitive flow alone did not reliably produce the requested large displacement. Geometric initialization resolves this functional problem by placing the object at the intended location explicitly. The final apple ablation confirms that deterministic movement and compositing are strong contributors to final visual quality.
+
+The second finding is quantitative: RAFT-guided diffusion improves the pre-composite diffusion trajectory. Across three apple seeds, adding RAFT guidance reduced final flow loss from 8.46 to 5.80, best recorded flow loss from 8.16 to 3.07, and total guidance energy from 30.57 to 21.86 compared with the no-RAFT diffusion variant. This directly answers the concern that RAFT might not contribute measurable evidence.
+
+The third finding is architectural: learned motion guidance and source-hole completion are different problems. RAFT can supervise where content should move, but newly exposed background requires an inpainting or restoration model. The final path therefore separates ML-guided sampling from disocclusion handling. The visually strongest final apple and teapot translation results are hybrid composites, so those final images should not be presented as the output of diffusion alone.
+
+The fourth finding is about scope. Additional teapot and tree runs reduce the weakness of having only one inspectable output. Teapot supports the practical contained-translation workflow, while tree shows that file-flow or non-rigid deformation remains less stable and should be treated as a stress case.
+
+\section{Answer to the Research Question}
+
+The thesis answers the research question by showing that Motion Guidance can be extended into a more controllable image-editing pipeline through a combination of explicit motion control and post-diffusion correction. The final system improves practical usability in three ways:
+
+\begin{enumerate}
+  \item it converts simple geometric motion into dense supervision for a learned flow estimator;
+  \item it injects differentiable RAFT and appearance losses into latent DDIM inference;
+  \item it preserves source latents outside the edit region and supports stronger latent initialization.
+\end{enumerate}
+
+This makes motion specification more direct than selecting a prepared dense flow file, while retaining compatibility with the baseline guidance machinery.
+
+The refined answer to the central examination question is that RAFT guidance contributes to the diffusion stage by lowering measured flow loss and total energy, while deterministic restoration and compositing contribute most strongly to the final visual cleanliness of the contained apple translation.
+
+\section{Final Remarks}
+
+The work does not establish broad comparative superiority, statistical reliability across many scenes, or reliable non-rigid editing quality. Source-hole restoration can remain imperfect, and the final contained-translation images are deterministic composites rather than isolated diffusion outputs. The supported contribution is therefore the design, implementation, and focused fixed-seed evaluation of an auditable hybrid workflow.
+
+Overall, the project shows how a latent diffusion generator and a neural optical-flow estimator can interact through inference-time gradients. Future work should extend the current diagnostics to more images, compare RAFT iterations and guidance hyperparameters, improve restoration comparisons, isolate pre-composite diffusion outputs in additional cases, and test learned restoration and non-rigid supervision.

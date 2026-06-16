@@ -1,0 +1,72 @@
+\setlength{\footskip}{8mm}
+
+\chapter{Literature Review}
+\label{ch:literature-review}
+
+\section{Diffusion Models for Image Generation}
+
+Diffusion models generate images by learning to reverse a gradual noising process. Denoising Diffusion Probabilistic Models (DDPMs) showed that high-quality image synthesis can be achieved through iterative denoising with a learned probabilistic model \cite{ho2020ddpm}. However, the original sampling process is computationally expensive because it requires many sequential denoising steps. Denoising Diffusion Implicit Models (DDIMs) improved sampling efficiency by introducing a non-Markovian sampling process that can use fewer steps while keeping the same training objective \cite{song2021ddim}.
+
+Latent Diffusion Models further improved efficiency by applying diffusion in the latent space of an autoencoder instead of directly in pixel space \cite{rombach2022ldm}. This design is important for practical image editing because it reduces computational cost while still supporting high-quality image synthesis and conditioning. The implementation used in this thesis builds on this family of latent diffusion methods.
+
+\section{Guidance in Diffusion Sampling}
+
+Guidance methods control the direction of the denoising process. Classifier-free guidance combines conditional and unconditional predictions to improve prompt alignment without requiring a separate classifier \cite{ho2022classifierfree}. This is widely used in text-conditioned diffusion systems.
+
+For image editing, guidance can also be introduced through external losses. In this setting, the diffusion sample is decoded during sampling, a task-specific loss is computed, and its gradient is used to steer the latent update. This idea is central to Motion Guidance, where the external loss is based on optical-flow consistency and source preservation \cite{geng2024motionguidance}. The present thesis follows this direction but adds primitive control, localized refinement, and restoration-aware post-processing.
+
+\section{Pretrained Model Composition for Editing}
+
+The ML pipeline used in this thesis combines models with different learned functions. Stable Diffusion v1.4 supplies the generative prior through three principal components: an AutoencoderKL that compresses RGB images to four-channel latent tensors, a frozen CLIP text encoder that maps prompts to a 768-dimensional conditioning context, and a conditional U-Net that predicts noise at each diffusion timestep. The repository configuration uses a latent scaling factor of $0.18215$, cross-attention conditioning, and a U-Net with spatial-transformer attention.
+
+RAFT supplies a complementary learned capability. Instead of generating pixels, it estimates dense correspondence between the source image and the current decoded prediction. Because the flow estimator and VAE decoder are differentiable, motion error can be propagated back to the diffusion latent without updating the parameters of either network. RAFT evaluates whether the current sample follows the requested displacement, while Stable Diffusion constrains the update through its learned image prior.
+
+The method is therefore an example of inference-time model guidance rather than supervised training or fine-tuning. Its network weights remain unchanged; optimization occurs over the current latent variable during sampling. The ML contribution lies in defining supervision, computing gradients through pretrained networks, and controlling the denoising trajectory.
+
+\section{Diffusion-Based Image Editing}
+
+Several diffusion-based editing methods focus on modifying an existing image while preserving its important content. SDEdit adds noise to an input image and then denoises it through a diffusion prior, allowing edits guided by user input without task-specific retraining \cite{meng2022sdedit}. Prompt-to-Prompt controls cross-attention maps to preserve layout while changing text prompts \cite{hertz2022prompttoprompt}. InstructPix2Pix trains a conditional diffusion model to follow natural-language image-editing instructions \cite{brooks2023instructpix2pix}.
+
+These methods demonstrate the strength of diffusion models for semantic and text-guided editing. However, text and instruction-based editing may still be imprecise for exact object displacement. A prompt such as ``move the object to the right'' does not directly define the object support, displacement magnitude, boundary handling, or background repair. This motivates motion-based control.
+
+\section{Optical Flow and Motion-Guided Editing}
+
+Optical flow estimates pixel-level motion between images. RAFT introduced a recurrent all-pairs field transform architecture that builds correlation volumes and iteratively refines flow estimates \cite{teed2020raft}. Its accuracy and differentiable design make it useful as a guidance signal in optimization and diffusion-based editing.
+
+Motion Guidance uses a differentiable optical-flow estimator during diffusion sampling to encourage the generated image to match a user-provided target flow \cite{geng2024motionguidance}. This enables dense motion-based image editing without training a new diffusion model. The limitation, however, is practical control: the user must often rely on precomputed flow files. This thesis addresses that limitation by generating target flows from explicit primitives such as translation, scale, stretch, and rotation.
+
+\section{Point-Based and Interactive Editing}
+
+Interactive editing methods provide another form of spatial control. DragGAN allows users to move image points on a GAN-generated image by optimizing generator features toward target locations \cite{pan2023draggan}. DragDiffusion extends point-based interactive editing to diffusion models by optimizing latent features for handle-point movement \cite{shi2023dragdiffusion}. These methods show the importance of direct spatial control, but they differ from this thesis because they use point manipulation rather than primitive-to-flow motion fields.
+
+The proposed work is positioned between dense-flow motion guidance and interactive control. It keeps the motion-guided diffusion formulation but exposes simpler geometric controls that are easier to specify and evaluate.
+
+\section{Image Inpainting and Background Restoration}
+
+Moving an object creates a source-hole region at the original location. This requires background restoration in addition to object motion. RePaint uses a pretrained DDPM for inpainting by conditioning reverse diffusion on known image regions \cite{lugmayr2022repaint}. LaMa addresses large-mask inpainting using Fourier convolutions and a large effective receptive field, making it suitable for complex missing regions and high-resolution completion \cite{suvorov2022lama}.
+
+In this thesis, restoration is treated as a practical post-processing component rather than as the main generative contribution. The system combines local filling, patch-based restoration, OpenCV inpainting, and LaMa-based restoration to reduce visible source-hole artifacts after object translation.
+
+\section{Research Gap}
+
+The reviewed literature shows that diffusion models are strong generative priors, optical flow provides dense motion supervision, and inpainting methods can repair missing regions. However, a practical gap remains: motion-guided editing is powerful but difficult to control when the user must depend mainly on dense precomputed flows.
+
+This thesis addresses the gap by integrating Motion Guidance with motion primitives, spatial gradient weighting, geometric initialization, and restoration-aware compositing. The contribution is not a new diffusion model; it is an implemented hybrid workflow built on existing motion-guided diffusion and inpainting components.
+
+\begin{table}[t]
+  \caption{Summary of related methods and their relevance to this thesis.}
+  \centering
+  \begin{tabular}{p{1.4in}|p{1.1in}|p{1.3in}|p{1.4in}}
+    \hline
+    Method & Control Type & Main Strength & Limitation for This Thesis \\ \hline \hline
+    DDPM / DDIM & Generative sampling & Strong image prior & Not designed for direct object motion \\ \hline
+    Latent Diffusion & Text and conditioning & Efficient high-quality synthesis & Spatial edits remain indirect \\ \hline
+    InstructPix2Pix / Prompt-to-Prompt & Text or instruction & Semantic editing & Limited precise motion control \\ \hline
+    DragGAN / DragDiffusion & Point dragging & Interactive spatial editing & Different from primitive flow control \\ \hline
+    Motion Guidance & Dense target flow & Motion-aware diffusion editing & Requires target flow specification \\ \hline
+    Proposed method & Motion primitives and restoration & Practical controllable translation & Strongest for rigid motion \\ \hline
+  \end{tabular}
+  \label{tab:related-work-summary}
+\end{table}
+
+\FloatBarrier

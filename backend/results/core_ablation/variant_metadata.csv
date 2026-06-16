@@ -1,0 +1,6 @@
+name,description,target_flow_mode,guidance_weight,use_hard_warp_init,skip_diffusion,disable_final_composite,use_selective_refinement,preserve_unedited_output
+warp_inpaint_only,Deterministic primitive movement plus source-hole restoration and compositing.,primitive,0.0,True,True,False,False,False
+original_motion_guidance,Original file-flow Motion Guidance baseline.,file,30.0,False,False,True,False,False
+diffusion_no_raft,Primitive hard-warp initialization with zero RAFT guidance weight.,primitive,0.0,True,False,True,True,True
+diffusion_raft,"Primitive hard-warp initialization with RAFT guidance, no final composite.",primitive,30.0,True,False,True,True,True
+full_pipeline,"Primitive hard-warp initialization, RAFT guidance, restoration, and final composite.",primitive,30.0,True,False,False,True,True

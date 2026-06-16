@@ -1,0 +1,92 @@
+\setlength{\footskip}{8mm}
+
+\chapter{Baseline Motion Guidance}
+\label{ch:baseline}
+
+\section{Baseline Overview}
+
+The baseline used in this thesis is the original Motion Guidance pipeline \cite{geng2024motionguidance}. The method edits a source image by guiding a diffusion sampling process with a target optical-flow field. The input consists of a source image $x_0$, a text prompt $c$, an edit mask $M$, and a target flow $F$. The output is an edited image that should follow the target motion while preserving the visual identity of the source image.
+
+The baseline is important for two reasons. First, it provides the foundation on which the proposed method is built. Second, it defines the workflow against which the added interface and processing stages are conceptually compared.
+
+\section{Pretrained ML Components}
+
+The baseline is built on Stable Diffusion v1.4. Its AutoencoderKL encodes an RGB image into a four-channel latent representation and decodes predicted clean latents back to image space. A frozen CLIP ViT-L/14 text encoder produces a 768-dimensional prompt context, and a cross-attention U-Net predicts diffusion noise. The network parameters remain frozen during editing; the optimized quantity is the noisy latent $z_t$.
+
+Motion supervision is supplied by pretrained RAFT. For each decoded clean-image estimate, RAFT predicts dense optical flow from the source image to the current output. Since the flow network and VAE decoder remain inside the computational graph, prediction error can be differentiated with respect to $z_t$. The baseline therefore couples a learned generative prior with a learned motion estimator at inference time.
+
+\section{Motion Guidance Objective}
+
+Motion Guidance treats editing as a guided diffusion problem rather than as a separate training task. During sampling, the current image estimate is encouraged to satisfy a motion-consistency objective. In simplified form, the baseline guidance energy can be written as:
+
+\begin{equation}
+E(x) = \lambda_f L_{\mathrm{flow}}(x, x_0, F) + \lambda_c L_{\mathrm{color}}(x, x_0),
+\end{equation}
+
+where $L_{\mathrm{flow}}$ encourages the estimated motion between the source image and edited image to match the target flow, and $L_{\mathrm{color}}$ encourages visual consistency with the source image. The weights $\lambda_f$ and $\lambda_c$ control the relative strength of motion consistency and source preservation.
+
+\section{Flow-Based Guidance Loss}
+
+The baseline uses RAFT as a differentiable optical-flow estimator \cite{teed2020raft}. Given the source image $x_0$ and the current decoded image $x$, RAFT estimates a flow field:
+
+\begin{equation}
+\hat{F} = \Phi(x_0, x),
+\end{equation}
+
+where $\Phi$ denotes the optical-flow network. The implemented flow loss is the mean absolute difference between the predicted and target flows:
+
+\begin{equation}
+L_{\mathrm{flow}} = \operatorname{MAE}(\hat{F},F).
+\end{equation}
+
+This loss provides the main motion signal. If the generated image does not follow the intended displacement or deformation, the flow loss increases and its gradient is used to steer the diffusion sampling process.
+
+\section{Source Preservation}
+
+Motion consistency alone is not sufficient because an image can satisfy a motion field while still changing object or background appearance. The implementation backward-warps the generated image using the predicted flow, or the target flow when oracle mode is active, and compares it with the source:
+
+\begin{equation}
+L_{\mathrm{color}} = \operatorname{MAE}\left(x_0,W(x,F_{\mathrm{warp}})\right),
+\end{equation}
+
+where $W(\cdot)$ denotes differentiable warping. Optional occlusion masking excludes unreliable disoccluded comparisons. This term encourages appearance preservation while the RAFT loss supplies motion supervision.
+
+\section{Guidance During DDIM Sampling}
+
+The baseline uses a modified DDIM sampler. At each denoising step, the current latent estimate is decoded into an image estimate. The motion-guidance energy is then computed on this decoded estimate, and the gradient of the energy is back-propagated to the latent variable:
+
+\begin{equation}
+g_t = \nabla_{z_t} E(\hat{x}_0).
+\end{equation}
+
+The predicted noise estimate is corrected using this gradient before the next DDIM update. Classifier-free guidance retains prompt conditioning, while RAFT supplies spatial supervision. The implementation records total energy, flow loss, color loss, U-Net noise norm, and guidance-gradient norm at each denoising step.
+
+\section{Baseline Reproduction}
+
+The baseline was reproduced using the original file-flow mode. In this mode, the target motion is loaded from a precomputed flow file rather than generated from user-defined primitives. Table~\ref{tab:baseline-runs} summarizes the baseline runs used as the starting comparison point.
+
+\begin{table}[t]
+  \caption{Baseline Motion Guidance runs used for comparison.}
+  \centering
+  \small
+  \begin{tabular}{p{0.75in}|p{1.45in}|p{0.85in}|p{0.75in}|p{0.45in}}
+    \hline
+    Example & Prompt & Mask & Target Flow & Steps \\ \hline \hline
+    Apple & an apple on a wooden table & right mask & right flow & 40 \\ \hline
+    Teapot & a teapot floating in water & down mask & down flow & 40 \\ \hline
+    Topiary & a photo of topiary & mask.pth & flow.pth & 40 \\ \hline
+  \end{tabular}
+  \label{tab:baseline-runs}
+\end{table}
+
+The baseline runs used guidance weight $30.0$, gradient clipping value $60.0$, one recursive step, one RAFT iteration, and classifier-free guidance scale $7.5$. These settings established a stable reference point before adding thesis-specific components.
+
+\section{Observed Baseline Limitations}
+
+The reproduced baseline confirmed that Motion Guidance is a strong foundation for motion-aware editing, but it also exposed practical limitations relevant to this thesis.
+
+First, the baseline depends on precomputed dense target flows. This makes the workflow less intuitive for users who want to specify simple motion such as ``move right by 150 pixels'' or ``stretch vertically''. Second, soft guidance alone may not produce sufficiently strong object displacement for primitive-style control. Third, after an object is moved, the original object location may contain source-hole artifacts that require restoration.
+
+These limitations motivate the proposed extension in Chapter~\ref{ch:methodology}. The thesis contribution is therefore not the original Motion Guidance model, but a hybrid pipeline built around primitive flow generation, spatial guidance weighting, geometric initialization, and restoration-aware compositing.
+
+\FloatBarrier

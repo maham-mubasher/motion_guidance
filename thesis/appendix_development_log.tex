@@ -1,0 +1,96 @@
+\setlength{\footskip}{8mm}
+\addcontentsline{toc}{chapter}{Appendix A: Development and Weekly Progress Log}
+
+\begin{center}
+{\large \bf Appendix A\\ \vskip 1em Development and Weekly Progress Log\\ \vskip 1em}
+\end{center}
+
+This appendix summarizes the development trail of the project. It is included as supporting evidence for the implementation process, experimental decisions, and final scope of the thesis. The main thesis chapters describe the method and evaluation; this appendix records how the final pipeline was reached.
+
+\section*{A.1 Development Objective}
+
+The project objective was to build a controllable extension of Motion Guidance for image editing. The original baseline uses a source image $x_0$, edit mask $M$, text condition $c$, and target flow $F$. The thesis extension adds:
+
+\begin{enumerate}
+  \item explicit motion primitives for user-defined control;
+  \item selective refinement inside and outside the edit region;
+  \item hard warp initialization for stronger object displacement;
+  \item restoration and sharp compositing for source-hole cleanup;
+  \item a backend and frontend interface for repeatable demonstrations.
+\end{enumerate}
+
+\section*{A.2 Technical Development Timeline}
+
+\begin{table}[p]
+  \centering
+  \scriptsize
+  \caption{Weekly development summary.}
+  \label{tab:appendix-weekly-log}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{p{0.65in}|p{1.45in}|p{1.65in}|p{1.35in}}
+    \hline
+    \textbf{Stage} & \textbf{Work Completed} & \textbf{Technical Detail} & \textbf{Outcome} \\ \hline \hline
+    Weeks 1--3 & Baseline reproduction & Original Motion Guidance pipeline with fixed source image, mask, flow, and prompt & Established reproducible comparison point \\ \hline
+    Weeks 4--5 & Motion primitives and selective refinement & Generated target flow using $F(p)=T(p)-p$ and weighted guidance using $\gamma_{\mathrm{in}}$ and $\gamma_{\mathrm{out}}$ & Primitive control improved usability, but flow-only guidance was weak \\ \hline
+    Weeks 6--7 & Hard warp initialization & Applied $x_{\mathrm{warp}}(p)=x_0(p-F(p))$ before diffusion refinement & Object translation became operational \\ \hline
+    Weeks 8--9 & Background cleanup and final evaluation organization & Tested source-hole cleanup, compositing, and stage-wise comparison & Best early apple result selected and comparison structure prepared \\ \hline
+    Week 10 & Thesis writing and restoration module cleanup & Organized method, contribution, limitation, and evaluation narrative & Thesis structure prepared \\ \hline
+    Week 11 & LaMa restoration and presets & Added restoration options, example presets, validation, and cancel endpoint & Contained-translation path completed \\ \hline
+    Week 12 & Before-after interface and presentation assets & Added source preview, server guards, and shipped-asset loading for selected presets & Presentation path separated from generated evidence \\ \hline
+  \end{tabular}
+\end{table}
+
+\section*{A.3 Main Code Artifacts}
+
+\begin{table}[p]
+  \centering
+  \scriptsize
+  \caption{Implementation artifacts used in the thesis.}
+  \label{tab:appendix-code-artifacts}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{p{2.1in}|p{2.95in}}
+    \hline
+    \textbf{Component} & \textbf{File} \\ \hline \hline
+    Motion primitive generation & \texttt{backend/motion\_primitives.py} \\ \hline
+    Selective gradient weighting & \texttt{backend/selective\_refinement.py} \\ \hline
+    Modified DDIM guidance loop & \texttt{backend/ldm/models/diffusion/}\newline \texttt{ddim\_with\_grad.py} \\ \hline
+    Main generation pipeline & \texttt{backend/generate.py} \\ \hline
+    Background restoration and compositing & \texttt{backend/background\_restoration.py} \\ \hline
+    Backend API & \texttt{backend/mg\_api/main.py} \\ \hline
+    Frontend interface & \texttt{frontend/src/app/page.tsx} \\ \hline
+    Example commands & \texttt{Commands} \\ \hline
+  \end{tabular}
+\end{table}
+
+\section*{A.4 Experimental Progression}
+
+The development process followed a staged experimental progression. The baseline established that the Motion Guidance pipeline could be reproduced. Motion primitives then made the target motion easier to specify, but early experiments showed that primitive flow used only as a soft guidance signal was not strong enough for reliable displacement.
+
+Hard warp initialization was the key turning point. By moving the object geometrically before diffusion refinement, the method changed the role of the diffusion sampler from performing the full motion to refining an already displaced image. This made rigid object translation practical.
+
+Restoration experiments were then added because object movement exposes the original object location. Several strategies were tested, including local filling, directional texture filling, patch-based restoration, OpenCV Telea inpainting, and LaMa-based restoration. The final system uses restoration and sharp compositing to improve the source-hole region while preserving the moved object.
+
+\section*{A.5 Final Example Status}
+
+\begin{table}[p]
+  \centering
+  \scriptsize
+  \caption{Final status of project examples.}
+  \label{tab:appendix-example-status}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabular}{p{0.75in}|p{1.1in}|p{1.45in}|p{1.65in}}
+    \hline
+    \textbf{Example} & \textbf{Motion Type} & \textbf{Final Status} & \textbf{Thesis Role} \\ \hline \hline
+    Apple & Primitive translation & Strong generated example & Main evidence for final pipeline \\ \hline
+    Teapot & Primitive translation & Strong generated example & Additional rigid-translation evidence \\ \hline
+    Lion & Primitive translation & Supported but less central & Secondary primitive example \\ \hline
+    Tree & Primitive stretch & Supported, less stable & Demonstrates broader primitive support \\ \hline
+    Woman & File flow with reference stabilization & Demonstration only & Human-image and non-rigid limitation case \\ \hline
+    Topiary & File flow with reference stabilization & Demonstration only & Non-rigid deformation limitation case \\ \hline
+    Cat & Presentation asset only & Not runnable as a complete experiment & Excluded from final evaluation \\ \hline
+  \end{tabular}
+\end{table}
+
+\section*{A.6 Development Summary}
+
+The final implementation was reached through a sequence of technical decisions. Primitive control made motion specification more direct, spatial weighting localized the guidance gradient by construction, geometric initialization enforced rigid motion, and restoration with source-object compositing completed the contained-translation renderer. The retained artifacts do not isolate the quality gain from each stage, so controlled ablation and broader evaluation remain future work.

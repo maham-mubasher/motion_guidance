@@ -1,0 +1,64 @@
+\setlength{\footskip}{8mm}
+
+\chapter{Limitations, Ethics, and Future Work}
+\label{ch:limitations}
+
+\section{Limitations}
+
+The proposed system exposes practical controls for motion-guided image editing, but the empirical evidence is still limited. The final evaluation includes a controlled apple ablation with five variants and three seeds, plus additional three-seed teapot and tree generated cases. This is stronger than a single qualitative result, but the only full component ablation remains one object, one background, one translation magnitude, one mask, and one main hyperparameter setting. The following limitations bound the conclusions that can be drawn.
+
+\subsection{Limited Reliability for Non-Rigid Motion}
+
+The current pipeline is designed most completely for simple geometric transformations. Non-rigid examples, such as hair growth or topiary deformation, involve changes in local shape, texture, identity, and boundary structure that a single primitive flow or simple post-processing rule may not capture.
+
+The woman and topiary presets can load shipped output assets, so they are presentation examples rather than generated evidence. The generated tree squeeze runs are included only as a file-flow stress case and show visible seed-dependent deformation. The thesis therefore draws no strong performance conclusion about reliable non-rigid deformation.
+
+\subsection{Source-Hole Restoration}
+
+When an object is moved, the original object location becomes newly exposed. This region, denoted as $H$, must be reconstructed as plausible background:
+\begin{equation}
+  H = M \setminus T_\theta(M),
+\end{equation}
+where $M$ is the original object mask and $T_\theta(M)$ is the transformed mask. Although restoration and compositing improve this region, the filled background may still show synthetic texture, weak boundary blending, or residual artifacts. This is the main visual limitation of the current lightweight pipeline.
+
+The implementation supports LaMa and simpler filling strategies, but the thesis artifacts do not contain a controlled comparison among them. Large disocclusions, structured backgrounds, shadows, reflections, and repeated textures remain difficult regardless of the selected restorer.
+
+\subsection{Dependence on Masks, Flows, and Cached Latents}
+
+The pipeline depends on the quality of the edit mask, target flow, inversion latent, and cached DDIM latents. If the mask is inaccurate, the object boundary may be damaged or background pixels may be moved incorrectly. If the flow is inconsistent with the intended edit, the guidance loss may push the image toward an undesirable deformation.
+
+This dependency also affects reproducibility. A complete runnable example requires the input image, mask, target flow or primitive parameters, inversion latent, and cached sampling latents. For example, the cat image available in the repository is a presentation asset, but the corresponding complete runnable dataset is not available. Therefore, it should not be reported as a completed experiment.
+
+\subsection{Limited Quantitative Evaluation}
+
+The evaluation reports quantitative metrics for the apple ablation and for additional teapot and tree runs, but it is not equivalent to a benchmark evaluation and cannot establish broad statistical reliability, average improvement, or superiority over competing methods. More rigorous evaluation requires repeated trials across object categories, motion magnitudes, mask qualities, backgrounds, random seeds, prompts, and RAFT iteration counts.
+
+The reported apple ablation metrics are useful for the central RAFT question because they compare no-RAFT and RAFT-guided diffusion under fixed seeds. The teapot and tree metrics are useful as additional inspectable cases, but they should not be interpreted as proof of broad generalization.
+
+\subsection{Internal and External Validity}
+
+The final apple ablation was rerun with fixed seeds and retained intermediate outputs, so the RAFT versus no-RAFT comparison is stronger than the earlier development notes. However, external validity is still limited because the controlled runs cover only one scene, while the teapot and tree cases are supplementary rather than controlled ablations. Finally, the contained-translation renderer replaces the decoded diffusion sample with a deterministic source-object composite in the full pipeline, so the final apple and teapot images do not isolate the contribution of diffusion refinement. The thesis therefore interprets RAFT as improving pre-composite diffusion alignment rather than as solely producing the final image.
+
+\section{Ethical Considerations}
+
+Motion-guided image editing can be used for creative design, visual prototyping, and research demonstrations, but it can also be misused for deceptive manipulation. The most important ethical requirement is disclosure. Edited images should not be presented as unmodified photographs when the edit changes object position, human appearance, or scene meaning.
+
+Human-image examples require additional care. Edits involving faces, bodies, hair, clothing, or identity can affect consent, privacy, and representation. In this thesis, the woman example is treated cautiously and is not used to make strong algorithmic claims. This avoids overstating performance on human identity-sensitive editing.
+
+The system should also include clear user-facing boundaries in future deployment. Recommended safeguards include edit provenance metadata, visible warnings for generated outputs, restrictions on harmful impersonation, and careful dataset licensing. These safeguards are especially important if the method is extended beyond academic demonstration.
+
+\section{Future Work}
+
+The most important future direction is stronger source-hole restoration. A dedicated learned inpainting stage, better boundary harmonization, and shadow-aware compositing could improve realism at the original object location. This would directly address the main visual weakness observed in rigid translation examples.
+
+Second, the method should be extended to more reliable non-rigid deformation. Instead of relying on a single flow field and generic diffusion guidance, future work could use part-aware masks, local deformation constraints, keypoint trajectories, or multi-region motion primitives. This would make examples such as hair growth, topiary deformation, and articulated object motion more defensible as algorithmic results.
+
+Third, the evaluation should be expanded. A stronger experimental study should include multiple images per category, several displacement magnitudes, repeated random seeds, and quantitative comparison against baseline Motion Guidance, DragDiffusion, SDEdit, and simple warp-and-inpaint methods. The metrics proposed earlier in the thesis can be used to measure motion error, background preservation, source-hole plausibility, and boundary consistency.
+
+Fourth, the user workflow can be improved through automatic mask generation, interactive drag controls, real-time preview, and automatic parameter validation. This would reduce the amount of manual setup needed before running an edit.
+
+Finally, inference speed remains a practical limitation. The current system uses diffusion sampling, optical-flow guidance, and restoration, which can be expensive. Faster samplers, fewer refinement steps, model distillation, and asynchronous job scheduling would make the system more suitable for interactive use.
+
+\section{Summary}
+
+The correct scope is an implemented hybrid editing workflow with direct primitive controls, a focused fixed-seed apple ablation, and two additional generated case studies. The evidence shows RAFT-guided improvement in pre-composite diffusion alignment, while final visual quality depends heavily on restoration and compositing. Stronger restoration, reliable non-rigid editing, broader quantitative testing, and faster interaction remain open work.

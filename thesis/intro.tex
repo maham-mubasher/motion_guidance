@@ -1,0 +1,64 @@
+\setlength{\footskip}{8mm}
+
+\chapter{Introduction}
+\label{ch:introduction}
+
+\section{Background}
+
+Diffusion models have significantly improved image generation and editing by learning powerful image priors from large datasets. Stable Diffusion performs this generative process in a compressed latent space: a variational autoencoder maps images to latent tensors, a text-conditioned U-Net predicts diffusion noise, and a decoder maps denoised latents back to pixels. Although this model stack produces realistic images, text conditioning does not directly specify pixel-level object motion.
+
+Motion-guided image editing addresses this limitation by adding a learned motion estimator to the diffusion loop. Motion Guidance uses RAFT, a pretrained optical-flow network, as a differentiable loss model during DDIM sampling \cite{geng2024motionguidance,teed2020raft}. The current decoded image is compared with the source through predicted optical flow; the resulting loss is back-propagated through RAFT and the VAE decoder to the diffusion latent. This inference-time optimization is the central machine-learning mechanism studied in this thesis.
+
+\section{Problem Statement}
+
+The main technical problem addressed in this thesis is how to control a pretrained latent diffusion model with explicit spatial motion without retraining its parameters. In the original Motion Guidance workflow, a dense target flow supervises a differentiable RAFT loss. The thesis preserves this learned guidance mechanism but generates its supervision from geometric primitives and modifies how the resulting gradient is applied in latent space.
+
+In addition, motion guidance alone may produce weak displacement, visible source-hole artifacts, or unstable background reconstruction after an object has been moved. Therefore, this thesis investigates the following question:
+
+\begin{quote}
+How can Motion Guidance be integrated with parameterized motion, spatial gradient weighting, geometric initialization, and restoration to support direct rigid-object editing?
+\end{quote}
+
+\section{Research Motivation}
+
+Precise object-level editing is useful in creative design, visual prototyping, and interactive generative tools. A practical system should allow the user to specify motion with understandable parameters rather than relying only on dense flow files. For example, moving an apple to the right should be expressible through a displacement value, while the system should preserve the apple texture and repair the background region revealed by the movement.
+
+This motivates an inference-time ML extension that combines a frozen Stable Diffusion model, frozen CLIP text encoder, frozen VAE, differentiable RAFT guidance, latent-space masking, gradient clipping, and a timestep-dependent guidance schedule. Geometric initialization and restoration support the ML pipeline where large displacement and disocclusion are difficult.
+
+\section{Aim and Objectives}
+
+The aim of this thesis is to develop and evaluate a controllable extension of Motion Guidance for single-image editing. The objectives are:
+
+\begin{enumerate}
+  \item To reproduce the pretrained Stable Diffusion and RAFT-based Motion Guidance baseline.
+  \item To generate target flows from motion primitives such as translation, scale, stretch, and rotation.
+  \item To modify the latent DDIM trajectory using differentiable flow and color losses.
+  \item To apply different guidance-gradient weights inside and outside the edited region.
+  \item To use geometric initialization to enforce object displacement.
+  \item To reduce source-hole artifacts through restoration and sharp compositing.
+  \item To log flow loss, color loss, noise norms, and guidance-gradient norms during inference.
+  \item To evaluate the implemented pipeline through a qualitative case study, component analysis, and explicit limitation analysis.
+\end{enumerate}
+
+\section{Research Contributions}
+
+This thesis contributes an inference-time ML control pipeline built from pretrained generative and discriminative models. The main contributions are:
+
+\begin{enumerate}
+  \item A primitive-to-flow module that produces dense supervision for the pretrained RAFT guidance network.
+  \item A modified DDIM loop that differentiates the motion energy through the VAE decoder and RAFT to update latent denoising.
+  \item Mask-dependent gradient weighting and RePaint-style latent replacement for spatially localized editing.
+  \item Latent initialization from a geometrically transformed image to study stronger starting conditions for large motion.
+  \item Inference diagnostics that record total guidance energy, flow loss, color loss, noise norms, and gradient norms.
+  \item Restoration and compositing for the disocclusion problem that remains after ML-guided motion.
+\end{enumerate}
+
+\section{Scope of the Study}
+
+This thesis focuses on single-image editing with pretrained Stable Diffusion v1.4 and pretrained RAFT. No network weights are trained or fine-tuned. The machine-learning contribution lies in model composition and inference-time optimization: neural image generation, neural text conditioning, neural optical-flow estimation, differentiable loss propagation, and latent trajectory control.
+
+The empirical scope is narrow. The thesis package contains one primary controlled case study for rigid apple translation, supported by implementation traces, fixed-seed ablations, and diagnostic records. It also contains additional three-seed generated runs for a teapot translation and a tree file-flow squeeze case. These extra cases broaden the inspectable evidence, but they are not controlled component ablations and do not establish generalization. No claim of state-of-the-art performance or broad superiority is made.
+
+\section{Thesis Organization}
+
+Chapter~\ref{ch:literature-review} reviews related work. Chapter~\ref{ch:baseline} explains the baseline Motion Guidance system. Chapter~\ref{ch:methodology} presents the proposed method. Chapter~\ref{ch:system-implementation} describes the implementation. Chapter~\ref{ch:experimental-setup} explains the experimental setup. Chapter~\ref{ch:results} presents the available evidence. Chapter~\ref{ch:ablation} gives the component analysis. Chapter~\ref{ch:limitations} discusses limitations, ethics, and future work. Chapter~\ref{ch:conclusion} concludes the thesis.

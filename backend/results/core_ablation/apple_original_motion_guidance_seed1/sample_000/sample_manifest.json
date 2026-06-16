@@ -1,0 +1,22 @@
+{
+  "diagnostics": {
+    "color_loss": "results/core_ablation/apple_original_motion_guidance_seed1/sample_000/losses_color.npy",
+    "flow_loss": "results/core_ablation/apple_original_motion_guidance_seed1/sample_000/losses_flow.npy",
+    "guidance_norm": "results/core_ablation/apple_original_motion_guidance_seed1/sample_000/guidance_norms.npy",
+    "noise_norm": "results/core_ablation/apple_original_motion_guidance_seed1/sample_000/noise_norms.npy",
+    "total_loss": "results/core_ablation/apple_original_motion_guidance_seed1/sample_000/losses.npy"
+  },
+  "final_composite_applied": false,
+  "final_output_source": "pre_composite_diffusion",
+  "outputs": {
+    "final": "results/core_ablation/apple_original_motion_guidance_seed1/sample_000/pred.png",
+    "pre_composite": "results/core_ablation/apple_original_motion_guidance_seed1/sample_000/pred_pre_composite.png",
+    "raw_diffusion_or_deterministic": "results/core_ablation/apple_original_motion_guidance_seed1/sample_000/pred_diffusion.png",
+    "start_zt": "results/core_ablation/apple_original_motion_guidance_seed1/sample_000/start_zt.pth"
+  },
+  "reference_output_applied": false,
+  "runtime_seconds": 172.88855481147766,
+  "sample_index": 0,
+  "seed": 1,
+  "skipped_diffusion": false
+}

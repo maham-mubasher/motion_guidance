@@ -1,0 +1,31 @@
+\documentclass{article}
+
+\usepackage{a4}
+\usepackage{setspace}
+
+\textwidth 6in
+\oddsidemargin 0.15in
+\topmargin -0.5in
+\textheight 10in
+\doublespacing
+
+\begin{document}
+
+\pagestyle{empty}
+\thispagestyle{empty}
+
+\begin{center}
+    {\LARGE \bf Controllable Motion-Guided Image Editing Using Diffusion Models, Motion Primitives, and Restoration-Aware Compositing}
+\end{center}
+
+\vspace{0.2in}
+{\bf \noindent Abstract}\\
+\vspace{-0.1in}
+
+\noindent This thesis investigates inference-time control of a pretrained latent diffusion model for single-image motion editing. The method combines Stable Diffusion v1.4, AutoencoderKL, frozen CLIP text conditioning, a U-Net denoiser, and pretrained RAFT optical flow. Instead of training new model weights, the system differentiates RAFT-based flow and appearance losses through the decoded diffusion estimate and updates the DDIM latent during sampling.
+
+The proposed pipeline converts translation, scale, stretch, and rotation parameters into dense target-flow supervision. It also adds mask-dependent gradient weighting, latent preservation outside the edit region, geometric initialization for large rigid movement, and restoration-aware compositing for the source-hole region exposed after an object moves. A fixed-seed apple ablation over five variants and three seeds shows that RAFT-guided diffusion reduces final flow loss from 8.46 to 5.80 and best recorded flow loss from 8.16 to 3.07 compared with a no-RAFT diffusion variant. These results show that RAFT contributes measurably to the pre-composite diffusion trajectory.
+
+The final visually strongest apple output, however, is produced by the complete hybrid pipeline and uses deterministic source-object compositing. The thesis therefore claims RAFT-guided improvement in intermediate diffusion alignment, not that diffusion alone creates the final composited image. Additional three-seed teapot and tree runs broaden the inspectable evidence, with teapot behaving as a contained-translation case and tree serving as a more difficult file-flow stress case. The contribution is an auditable inference-time ML editing workflow with direct motion primitives and a limited but reproducible case-study ablation.
+
+\end{document}
