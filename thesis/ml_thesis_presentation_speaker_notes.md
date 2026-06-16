@@ -72,31 +72,34 @@ Motion guidance and restoration are two different problems. RAFT can tell whethe
 ## Slide 24: End-to-End Workflow
 The complete workflow starts with the input image, text prompt, object mask, and motion parameters. The motion parameters are converted into target flow. Then guided diffusion uses CLIP, the U-Net, the VAE, and RAFT gradients to generate the motion-aware output. After the object moves, the exposed background region is restored. The final result should include both the raw diffusion output and the final hybrid composite, so that the ML contribution can be evaluated clearly.
 
-## Slide 25: Experimental Setup
+## Slide 25: Frontend Interface
+This slide shows the web console that I implemented around the backend. It exposes the same parameters used by the experiments: prompt, input folder, mask, flow source, primitive translation values, DDIM steps, guidance weight, gradient clipping, RAFT iterations, and recursive steps. The screenshot uses the apple preset because apple is the main evaluated case. I will present this interface as implementation work and a repeatable launcher for experiments, not as a separate user-study result.
+
+## Slide 26: Experimental Setup
 For the final evaluation, I ran a controlled apple ablation. There are five variants and three random seeds, so there are fifteen runs in total. The variants are warp-inpaint-only, original Motion Guidance, diffusion without RAFT guidance, diffusion with RAFT guidance, and the full pipeline. I used 120 DDIM steps, CFG scale 7.5, guidance weight 30 for the RAFT-guided variants, gradient clipping at 60, one RAFT iteration, and seeds 0, 1, and 2. I am not claiming that these hyperparameters are globally optimal; I am using them as a fixed protocol for a reproducible case study.
 
-## Slide 26: ML Diagnostics
+## Slide 27: ML Diagnostics
 This slide is the most important evidence for the RAFT contribution. The plot shows the flow-loss trajectories saved during diffusion. When I compare diffusion without RAFT to diffusion with RAFT, the final flow loss improves from 8.46 to 5.80 on average across three seeds. The best recorded flow loss improves from 8.16 to 3.07. That is important because it shows that RAFT is not just described in the method; it measurably changes the diffusion trajectory.
 
-## Slide 27: Apple Case Study
+## Slide 28: Apple Case Study
 Here I summarize the metric table. Original Motion Guidance has the highest flow loss in this apple setup. The no-RAFT diffusion variant improves over the original baseline, mostly because it uses primitive hard-warp initialization. When RAFT guidance is added, the flow loss and total energy decrease further. The full pipeline gives the best final preservation, but that final score is achieved after compositing. So the correct interpretation is that RAFT improves the diffusion alignment, while the final visual cleanliness comes from the full hybrid pipeline.
 
-## Slide 28: Component Analysis
+## Slide 29: Component Analysis
 This slide shows the final images across all variants and seeds. The rows are seeds 0, 1, and 2. The columns are deterministic warp-inpaint-only, original Motion Guidance, diffusion without RAFT, diffusion with RAFT, and the full pipeline. Visually, the full pipeline is the most stable. But I should also be very honest here: the deterministic warp-inpaint-only output is also strong, and both of these use final compositing. Therefore, this figure supports the full system as a hybrid editing pipeline, not a pure diffusion-only result.
 
-## Slide 29: Additional Generated Cases
+## Slide 30: Additional Generated Cases
 After the apple ablation, I ran two more generated cases with three seeds each. The teapot is another contained translation case, so it supports the same practical workflow as apple, although its final result also uses hybrid compositing. The tree case uses the available file-flow squeeze setup. It is useful because it shows the method under a harder deformation, but it also shows visible seed-dependent variation. I would present seed 2 as the representative tree output and describe the tree case as a stress case, not as proof that non-rigid editing is solved.
 
-## Slide 30: Compact Hyperparameter Study
+## Slide 31: Compact Hyperparameter Study
 This slide addresses the criticism that the original parameters were fixed without enough justification. I ran a compact one-factor-at-a-time study on the apple case. The reference setting is guidance weight 30, one RAFT iteration, and 80 DDIM steps, and final compositing is disabled so that the measurements refer to the diffusion-stage output. The most important result is that increasing RAFT iterations from one to five reduces the final flow loss from 5.08 to 2.81 in this case. Guidance weight 10 is weaker, while guidance weight 50 is similar to 30. Reducing DDIM steps to 40 improves runtime, but preservation becomes worse. I would describe this as a sensitivity study, not as a global hyperparameter optimization.
 
-## Slide 31: Restoration Comparison
+## Slide 32: Restoration Comparison
 This slide separates restoration from motion guidance. I use the same moved apple object and the same source-hole mask for all methods, so the comparison is focused on the background repair stage. Local and directional filling preserve untouched pixels, but they create visible artifacts inside the source-hole region. OpenCV inpainting is smoother numerically, but it leaves a visible fan-like pattern. LaMa gives the lowest source-hole color jump, 0.0096, and it is visually the cleanest in this example. Therefore, I use LaMa as the final selected restoration when it is available. This is important because it shows that the final visual result comes from both motion guidance and restoration, not from RAFT alone.
 
-## Slide 32: Limitations and Next Steps
+## Slide 33: Limitations and Next Steps
 The main limitation is still scope. I now have more than one generated case, a compact hyperparameter study, and a restoration comparison, but the controlled RAFT versus no-RAFT ablation is still only one object, one background, one mask, and one translation magnitude. I can claim that RAFT improves the pre-composite diffusion trajectory in the apple setup. I can also claim that apple and teapot show stable contained translation with the full hybrid pipeline, and that LaMa is the best tested restoration method for the apple source-hole case. What I cannot claim is broad generalization, reliable non-rigid editing, or that diffusion alone created the final contained-translation images.
 
-## Slide 33: Conclusion and Questions
+## Slide 34: Conclusion and Questions
 To conclude, my thesis studies inference-time interaction between pretrained generative and motion models. Stable Diffusion provides the image prior. CLIP provides semantic conditioning. RAFT provides differentiable motion supervision. My contribution is extending Motion Guidance into a more controllable and auditable pipeline using primitive flow, spatial latent control, geometric initialization, latent preservation, and restoration-aware processing. The final answer is balanced: RAFT-guided diffusion helps the trajectory, and hybrid compositing makes the final contained edit clean. The additional teapot and tree runs broaden the evidence, while the apple ablation remains the central controlled result. The compact hyperparameter and restoration studies make the evaluation stronger, but they also clarify that the thesis is a focused case-study evaluation rather than a benchmark claim. Thank you. I welcome your questions and feedback.
 
 ## Likely Examiner Question: What measurable contribution does RAFT make?

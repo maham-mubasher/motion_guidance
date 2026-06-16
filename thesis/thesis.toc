@@ -55,59 +55,59 @@
 \contentsline {section}{\numberline {5.10}Restoration and Compositing Module}{21}{}%
 \contentsline {section}{\numberline {5.11}Experiment Launcher and Visualization}{21}{}%
 \contentsline {section}{\numberline {5.12}Implementation Summary}{21}{}%
-\contentsline {chapter}{\numberline {6} Experimental Setup}{23}{}%
-\contentsline {section}{\numberline {6.1}Purpose of the Experiments}{23}{}%
-\contentsline {section}{\numberline {6.2}Example Set}{23}{}%
-\contentsline {section}{\numberline {6.3}Experimental Configurations}{24}{}%
-\contentsline {subsection}{\numberline {6.3.1}Pretrained Models}{24}{}%
-\contentsline {subsection}{\numberline {6.3.2}Recorded ML Diagnostics}{25}{}%
-\contentsline {section}{\numberline {6.4}Compared Method Variants}{25}{}%
-\contentsline {section}{\numberline {6.5}Qualitative Evaluation Criteria}{26}{}%
-\contentsline {subsection}{\numberline {6.5.1}Motion Consistency}{26}{}%
-\contentsline {subsection}{\numberline {6.5.2}Source Preservation}{26}{}%
-\contentsline {subsection}{\numberline {6.5.3}Object Sharpness}{27}{}%
-\contentsline {subsection}{\numberline {6.5.4}Source-Hole Plausibility}{27}{}%
-\contentsline {subsection}{\numberline {6.5.5}Boundary Consistency}{27}{}%
-\contentsline {section}{\numberline {6.6}Evidence Categories}{27}{}%
-\contentsline {section}{\numberline {6.7}ML Environment and Validation}{28}{}%
-\contentsline {chapter}{\numberline {7} Results and Evaluation}{29}{}%
-\contentsline {section}{\numberline {7.1}Evaluation Overview}{29}{}%
-\contentsline {section}{\numberline {7.2}Implemented ML Behavior}{29}{}%
-\contentsline {section}{\numberline {7.3}Apple Ablation Protocol}{30}{}%
-\contentsline {section}{\numberline {7.4}Quantitative Results}{30}{}%
-\contentsline {section}{\numberline {7.5}Diagnostic Trajectories}{31}{}%
-\contentsline {section}{\numberline {7.6}Visual Results}{31}{}%
-\contentsline {section}{\numberline {7.7}Answer to the RAFT Contribution Question}{31}{}%
-\contentsline {section}{\numberline {7.8}Additional Generated Cases}{35}{}%
-\contentsline {section}{\numberline {7.9}Compact Hyperparameter Study}{35}{}%
-\contentsline {section}{\numberline {7.10}Restoration Comparison}{38}{}%
-\contentsline {section}{\numberline {7.11}Status of Other Examples}{38}{}%
-\contentsline {section}{\numberline {7.12}Evaluation Summary}{41}{}%
-\contentsline {chapter}{\numberline {8} Component Analysis}{42}{}%
-\contentsline {section}{\numberline {8.1}Purpose of the Analysis}{42}{}%
-\contentsline {section}{\numberline {8.2}Ablation Variants}{42}{}%
-\contentsline {section}{\numberline {8.3}Contribution of Primitive Flow and Hard-Warp Initialization}{42}{}%
-\contentsline {section}{\numberline {8.4}Contribution of RAFT-Guided Diffusion}{43}{}%
-\contentsline {section}{\numberline {8.5}Contribution of Restoration and Compositing}{43}{}%
-\contentsline {section}{\numberline {8.6}Component Findings}{44}{}%
-\contentsline {chapter}{\numberline {9} Limitations, Ethics, and Future Work}{46}{}%
-\contentsline {section}{\numberline {9.1}Limitations}{46}{}%
-\contentsline {subsection}{\numberline {9.1.1}Limited Reliability for Non-Rigid Motion}{46}{}%
-\contentsline {subsection}{\numberline {9.1.2}Source-Hole Restoration}{46}{}%
-\contentsline {subsection}{\numberline {9.1.3}Dependence on Masks, Flows, and Cached Latents}{47}{}%
-\contentsline {subsection}{\numberline {9.1.4}Limited Quantitative Evaluation}{47}{}%
-\contentsline {subsection}{\numberline {9.1.5}Internal and External Validity}{47}{}%
-\contentsline {section}{\numberline {9.2}Ethical Considerations}{48}{}%
-\contentsline {section}{\numberline {9.3}Future Work}{48}{}%
-\contentsline {section}{\numberline {9.4}Summary}{49}{}%
-\contentsline {chapter}{\numberline {10} Conclusion}{50}{}%
-\contentsline {section}{\numberline {10.1}Conclusion}{50}{}%
-\contentsline {section}{\numberline {10.2}Summary of Contributions}{50}{}%
-\contentsline {section}{\numberline {10.3}Main Findings}{50}{}%
-\contentsline {section}{\numberline {10.4}Answer to the Research Question}{51}{}%
-\contentsline {section}{\numberline {10.5}Final Remarks}{52}{}%
-\contentsline {chapter}{References}{53}{}%
-\contentsline {chapter}{ \hskip 4em References}{53}{}%
-\contentsline {chapter}{Appendix A: Development and Weekly Progress Log}{55}{}%
-\contentsline {chapter}{Appendix B: Commands, Parameters, and Reproducibility}{59}{}%
-\contentsline {chapter}{Appendix C: Additional Result Images}{66}{}%
+\contentsline {chapter}{\numberline {6} Experimental Setup}{24}{}%
+\contentsline {section}{\numberline {6.1}Purpose of the Experiments}{24}{}%
+\contentsline {section}{\numberline {6.2}Example Set}{24}{}%
+\contentsline {section}{\numberline {6.3}Experimental Configurations}{25}{}%
+\contentsline {subsection}{\numberline {6.3.1}Pretrained Models}{25}{}%
+\contentsline {subsection}{\numberline {6.3.2}Recorded ML Diagnostics}{26}{}%
+\contentsline {section}{\numberline {6.4}Compared Method Variants}{26}{}%
+\contentsline {section}{\numberline {6.5}Qualitative Evaluation Criteria}{27}{}%
+\contentsline {subsection}{\numberline {6.5.1}Motion Consistency}{27}{}%
+\contentsline {subsection}{\numberline {6.5.2}Source Preservation}{27}{}%
+\contentsline {subsection}{\numberline {6.5.3}Object Sharpness}{28}{}%
+\contentsline {subsection}{\numberline {6.5.4}Source-Hole Plausibility}{28}{}%
+\contentsline {subsection}{\numberline {6.5.5}Boundary Consistency}{28}{}%
+\contentsline {section}{\numberline {6.6}Evidence Categories}{28}{}%
+\contentsline {section}{\numberline {6.7}ML Environment and Validation}{29}{}%
+\contentsline {chapter}{\numberline {7} Results and Evaluation}{30}{}%
+\contentsline {section}{\numberline {7.1}Evaluation Overview}{30}{}%
+\contentsline {section}{\numberline {7.2}Implemented ML Behavior}{30}{}%
+\contentsline {section}{\numberline {7.3}Apple Ablation Protocol}{31}{}%
+\contentsline {section}{\numberline {7.4}Quantitative Results}{31}{}%
+\contentsline {section}{\numberline {7.5}Diagnostic Trajectories}{32}{}%
+\contentsline {section}{\numberline {7.6}Visual Results}{32}{}%
+\contentsline {section}{\numberline {7.7}Answer to the RAFT Contribution Question}{32}{}%
+\contentsline {section}{\numberline {7.8}Additional Generated Cases}{36}{}%
+\contentsline {section}{\numberline {7.9}Compact Hyperparameter Study}{36}{}%
+\contentsline {section}{\numberline {7.10}Restoration Comparison}{39}{}%
+\contentsline {section}{\numberline {7.11}Status of Other Examples}{39}{}%
+\contentsline {section}{\numberline {7.12}Evaluation Summary}{42}{}%
+\contentsline {chapter}{\numberline {8} Component Analysis}{43}{}%
+\contentsline {section}{\numberline {8.1}Purpose of the Analysis}{43}{}%
+\contentsline {section}{\numberline {8.2}Ablation Variants}{43}{}%
+\contentsline {section}{\numberline {8.3}Contribution of Primitive Flow and Hard-Warp Initialization}{43}{}%
+\contentsline {section}{\numberline {8.4}Contribution of RAFT-Guided Diffusion}{44}{}%
+\contentsline {section}{\numberline {8.5}Contribution of Restoration and Compositing}{44}{}%
+\contentsline {section}{\numberline {8.6}Component Findings}{45}{}%
+\contentsline {chapter}{\numberline {9} Limitations, Ethics, and Future Work}{47}{}%
+\contentsline {section}{\numberline {9.1}Limitations}{47}{}%
+\contentsline {subsection}{\numberline {9.1.1}Limited Reliability for Non-Rigid Motion}{47}{}%
+\contentsline {subsection}{\numberline {9.1.2}Source-Hole Restoration}{47}{}%
+\contentsline {subsection}{\numberline {9.1.3}Dependence on Masks, Flows, and Cached Latents}{48}{}%
+\contentsline {subsection}{\numberline {9.1.4}Limited Quantitative Evaluation}{48}{}%
+\contentsline {subsection}{\numberline {9.1.5}Internal and External Validity}{48}{}%
+\contentsline {section}{\numberline {9.2}Ethical Considerations}{49}{}%
+\contentsline {section}{\numberline {9.3}Future Work}{49}{}%
+\contentsline {section}{\numberline {9.4}Summary}{50}{}%
+\contentsline {chapter}{\numberline {10} Conclusion}{51}{}%
+\contentsline {section}{\numberline {10.1}Conclusion}{51}{}%
+\contentsline {section}{\numberline {10.2}Summary of Contributions}{51}{}%
+\contentsline {section}{\numberline {10.3}Main Findings}{51}{}%
+\contentsline {section}{\numberline {10.4}Answer to the Research Question}{52}{}%
+\contentsline {section}{\numberline {10.5}Final Remarks}{53}{}%
+\contentsline {chapter}{References}{54}{}%
+\contentsline {chapter}{ \hskip 4em References}{54}{}%
+\contentsline {chapter}{Appendix A: Development and Weekly Progress Log}{56}{}%
+\contentsline {chapter}{Appendix B: Commands, Parameters, and Reproducibility}{60}{}%
+\contentsline {chapter}{Appendix C: Additional Result Images}{67}{}%

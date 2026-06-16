@@ -178,16 +178,16 @@ const EXAMPLE_PRESETS: Record<string, ExamplePreset> = {
 
 export default function Home() {
   const API = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
-  const [examplePreset, setExamplePreset] = useState("lion");
+  const [examplePreset, setExamplePreset] = useState("apple");
   const activePreset = EXAMPLE_PRESETS[examplePreset];
 
-  const [prompt, setPrompt] = useState("a photo of a lion");
-  const [inputDir, setInputDir] = useState("./data/lion");
-  const [mask, setMask] = useState("left.mask.pth");
-  const [flow, setFlow] = useState("left.pth");
+  const [prompt, setPrompt] = useState("an apple on a wooden table");
+  const [inputDir, setInputDir] = useState("./data/apple");
+  const [mask, setMask] = useState("right.mask.pth");
+  const [flow, setFlow] = useState("right.pth");
   const [targetFlowMode, setTargetFlowMode] = useState<FlowMode>("primitive");
   const [primitiveKind, setPrimitiveKind] = useState<PrimitiveKind>("translate");
-  const [primitiveDx, setPrimitiveDx] = useState(-100);
+  const [primitiveDx, setPrimitiveDx] = useState(150);
   const [primitiveDy, setPrimitiveDy] = useState(0);
   const [primitiveScaleX, setPrimitiveScaleX] = useState(1.1);
   const [primitiveScaleY, setPrimitiveScaleY] = useState(1.1);

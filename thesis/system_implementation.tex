@@ -124,6 +124,13 @@ where $O'$ is the shifted object, $B$ is the restored background, and $\alpha$ i
 
 A FastAPI service and Next.js page expose the ML configuration, launch the Python generation process, report denoising progress, and display source and output images. These components improve repeatability but do not alter the model, loss, or sampling algorithm. Presentation modes that load shipped assets are excluded from evaluation.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=5.8in]{figures/frontend_interface_screenshot.png}
+  \caption{Frontend experiment console using the apple translation preset. The interface exposes prompt, input folder, mask, primitive motion, guidance, and runtime controls. It is included as implementation evidence and is not counted as a separate quantitative experiment.}
+  \label{fig:frontend-interface}
+\end{figure}
+
 \section{Implementation Summary}
 
 Table~\ref{tab:implementation-components} summarizes the main implemented components and their roles in the thesis.
